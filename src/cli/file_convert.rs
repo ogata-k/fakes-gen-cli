@@ -1,4 +1,6 @@
 use crate::cli::file_type::FileType;
+use chrono::Local;
+use fakes_gen::date_time_format::DEFAULT_DATE_TIME_FORMAT;
 
 fn map_string_formatted(data: &[String]) -> Vec<String> {
     data.iter().map(|d| format!("\"{}\"", d)).collect()
@@ -43,7 +45,8 @@ pub fn convert_from_data_set(
         FileType::JSON => {
             lines.push("{".to_string());
             let mut items: Vec<String> = Vec::new();
-            lines.push(format!("{}\"fake\": [", " ".repeat(4 * 1)));
+
+            lines.push(format!("{}\"{}\": [", " ".repeat(4 * 1), Local::now().format(DEFAULT_DATE_TIME_FORMAT)));
             for data in data_set {
                 items.push(to_json(2, header, data));
             }

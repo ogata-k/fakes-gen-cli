@@ -25,7 +25,7 @@ fn main() {
     );
     println!(
         "{}",
-        convert_from_data_set(FileType::CSV, &header, &data_set)
+        convert_from_data_set(FileType::JSON, &header, &data_set)
     );
 }
 
