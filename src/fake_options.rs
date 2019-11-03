@@ -1,3 +1,5 @@
+use crate::category::Category;
+
 #[derive(Eq, PartialEq, Debug)]
 pub enum FakeOption {
     // Fixed Value
@@ -32,7 +34,7 @@ pub enum FakeOption {
 
     // Internet
     Email,
-    Username,
+    UserName,
     Password(usize, usize),
     CreditCard,
     URL,
@@ -73,11 +75,86 @@ pub enum FakeOption {
     // now - 100year ~ now
     DateTime(String),
 
-    // Filesystem
+    // FileSystem
     FileName,
-    FileExtension,
+    Extension,
+}
+
+impl std::fmt::Display for FakeOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        use FakeOption::*;
+        let cat: Category = self.category();
+        let s: String = match self {
+            FixedString(s) => format!("{}.String(target: {})", cat, s),
+            FixedNotString(s) => format!("{}.NotString(target: {})", cat, s),
+            SelectString(list) => format!("{}.SelectString(list: {:?})", cat, list),
+            SelectNotString(list) => format!("{}.SelectNotString(list: {:?})", cat, list),
+            Word => format!("{}.Word", cat),
+            Words(from, to) => format!("{}.Words(count: {}<=n<={})", cat, from, to),
+            Sentence => format!("{}.Sentence", cat),
+            Sentences(from, to) => format!("{}.Sentences(count: {}<=n<={})", cat, from, to),
+            Paragraph => format!("{}.Paragraph", cat),
+            Paragraphs(from, to) => format!("{}.Paragraphs(count: {}<=n<={})", cat, from, to),
+            FirstName(furigana) => format!("{}.FirstName(with_furigana: {})", cat, furigana),
+            LastName(furigana) => format!("{}.LastName(with_furigana: {})", cat, furigana),
+            FullName(furigana) => format!("{}.FullName(with_furigana: {})", cat, furigana),
+            Integer => format!("{}.Integer", cat),
+            IntegerRange(from, to) => format!("{}.Integer(range: {}<=n<={})", cat, from, to),
+            Float => format!("{}.Float", cat),
+            FloatRange(from, to) => format!("{}.Float(range: {}<=n<={})", cat, from, to),
+            Ascii(from, to) => format!("{}.Ascii(length: {}<=n<={})", cat, from, to),
+            Boolean => format!("{}.Boolean", cat),
+            Email => format!("{}.Email", cat),
+            UserName => format!("{}.UserName", cat),
+            Password(from, to) => format!("{}.Password(length: {}<=n<={})", cat, from, to),
+            CreditCard => format!("{}.CreditCard", cat),
+            URL => format!("{}.URL", cat),
+            IPv4 => format!("{}.IPv4", cat),
+            IPv6 => format!("{}.IPv6", cat),
+            RGB => format!("{}.RGB", cat),
+            RGBA => format!("{}.RGBA", cat),
+            UserAgent => format!("{}.UserAgent", cat),
+            StatusCode => format!("{}.StatusCode", cat),
+            CompanySuffix => format!("{}.CompanySuffix", cat),
+            CompanyName => format!("{}.CompanyName", cat),
+            Industry => format!("{}.Industry", cat),
+            Building => format!("{}.Building", cat),
+            StreetName => format!("{}.StreetName", cat),
+            CityName => format!("{}.CityName", cat),
+            StateName => format!("{}.StateName", cat),
+            CountryCode => format!("{}.CountryCode", cat),
+            CountryName => format!("{}.CountryName", cat),
+            TimeZone => format!("{}.TimeZone", cat),
+            Address => format!("{}.Address", cat),
+            ZipCode(hyphen) => format!("{}.ZipCode(use_hyphen: {})", cat, hyphen),
+            DomesticPhoneNumber(hyphen) => format!("{}.DomesticPhoneNumber(use_hyphen: {})", cat, hyphen),
+            Latitude => format!("{}.Latitude", cat),
+            Longitude => format!("{}.Longitude", cat),
+            Time(format) => format!("{}.Time(format: {})", cat, format),
+            Date(format) => format!("{}.Date(format: {})", cat, format),
+            DateTime(format) => format!("{}.DateTime(format: {})", cat, format),
+            FileName => format!("{}.FileName", cat),
+            Extension => format!("{}.Extension", cat),
+        };
+
+        write!(f, "{}", s)
+    }
 }
 
 impl FakeOption {
-    // category() -> Category
+    pub fn category(&self) -> Category{
+        use FakeOption::*;
+        match self {
+            FixedString(_)| FixedNotString(_) => Category::Fixed,
+            SelectString(_)| SelectNotString(_) => Category::Select,
+            Word| Words(_, _)| Sentence| Sentences(_, _)| Paragraph| Paragraphs(_, _) => Category::Lorem,
+            FirstName(_)| LastName(_)| FullName(_) => Category::Name,
+            Integer| IntegerRange(_, _)| Float| FloatRange(_, _)| Ascii(_, _)| Boolean => Category::Primitive,
+            Email| UserName | Password(_, _)| CreditCard| URL| IPv4| IPv6| RGB| RGBA| UserAgent| StatusCode => Category::Internet,
+            CompanySuffix| CompanyName| Industry => Category::Company,
+            Building| StreetName| CityName| StateName| CountryCode| CountryName| TimeZone| Address| ZipCode(_)| DomesticPhoneNumber(_)| Latitude| Longitude => Category::Address,
+            Time(_)| Date(_)| DateTime(_) => Category::DateTime,
+            FileName| Extension => Category::FileSystem,
+        }
+    }
 }

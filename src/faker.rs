@@ -6,14 +6,16 @@ use crate::each_lang::Generator;
 
 #[derive(Debug)]
 pub struct Faker<R: Rng>{
-    rnd: R,
+    rng: R,
+    locale: Locale,
     generator: Generator
 }
 
 impl Default for Faker<ThreadRng> {
     fn default() -> Self {
         Faker{
-            rnd: thread_rng(),
+            rng: thread_rng(),
+            locale: Locale::default(),
             generator: Generator::new(Locale::default())
         }
     }
@@ -22,12 +24,17 @@ impl Default for Faker<ThreadRng> {
 impl<R: Rng> Faker<R> {
     pub fn new(rng: R, locale: Locale) -> Faker<R> {
         Faker{
-            rnd: rng,
+            rng,
+            locale,
             generator: Generator::new(locale)
         }
     }
 
-    pub fn gen(&mut self, option: FakeOption) -> String {
-        self.generator.gen(&mut self.rnd, option)
+    pub fn locale(&self) -> Locale {
+        self.locale
+    }
+
+    pub fn gen(&mut self, option: &FakeOption) -> String {
+        self.generator.gen(&mut self.rng, option)
     }
 }
