@@ -8,6 +8,10 @@ pub fn string_formatted<T: Display + ?Sized>(text: &T) -> String {
     format!("\"{}\"", text)
 }
 
+pub fn map_string_formatted<T: Display + ?Sized>(data: &[T]) -> Vec<String> {
+    data.iter().map(|d| string_formatted(d)).collect()
+}
+
 pub fn not_string_formatted<T: Display + ?Sized>(text: &T) -> String {
     text.to_string()
 }
