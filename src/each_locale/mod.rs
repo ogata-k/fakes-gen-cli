@@ -82,7 +82,7 @@ trait Rand: Data {
             }
             FakeOption::Paragraphs(minimum, maximum) => {
                 return string_formatted(
-                    &select_many(rng, Self::PARAGRAPH, *minimum, *maximum).join(" "),
+                    &select_many(rng, Self::PARAGRAPH, *minimum, *maximum).join("\n"),
                 );
             }
 
