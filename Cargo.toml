@@ -9,4 +9,6 @@ edition = "2018"
 [dependencies]
 clap = "2.33.0"
 rand = "0.7.2"
+chrono = "0.4.9"
+num-traits = "0.2"
 failure = "0.1.6"

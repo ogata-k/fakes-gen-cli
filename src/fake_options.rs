@@ -1,8 +1,13 @@
-use std::str::FromStr;
-use crate::error::OptionParseError;
+#[derive(Eq, PartialEq, Debug)]
+pub enum FakeOption {
+    // Fixed Value
+    FixedString(String),
+    FixedNotString(String),
 
-#[derive(Eq, PartialEq, Copy, Clone, Debug)]
-pub enum Option {
+    // Random select from user value
+    SelectString(Vec<String>),
+    SelectNotString(Vec<String>),
+
     // Lorem
     Word,
     Words(usize, usize),
@@ -11,109 +16,68 @@ pub enum Option {
     Paragraph,
     Paragraphs(usize, usize),
 
-    // Name
-    FirstName,
-    LastName,
-    Title,
-    Suffix,
-    Name,
-    NameWithTitle,
+    // Name(use furigana)
+    // generate "name":"furigana"
+    FirstName(bool),
+    LastName(bool),
+    FullName(bool),
 
-    // Number
+    // Primitive
     Integer,
     IntegerRange(isize, isize),
-    Double,
-    DoubleRange(isize, isize),
-
-    // Boolean
+    Float,
+    FloatRange(isize, isize),
+    Ascii(usize, usize),
     Boolean,
 
     // Internet
-    FreeEmailProvider,
-    DomainSuffix,
-    FreeEmail,
-    SafeEmail,
+    Email,
     Username,
     Password(usize, usize),
+    CreditCard,
+    URL,
     IPv4,
     IPv6,
-    IP,
-    Color,
+    RGB,
+    RGBA,
     UserAgent,
-
-    // HTTP
-    RfcStatusCode,
-    ValidStatusCode,
+    StatusCode,
 
     // Company
     CompanySuffix,
     CompanyName,
-    Buzzword,
-    BuzzwordMiddle,
-    BuzzwordTail,
-    CatchPhase,
-    BsVerb,
-    BsAdj,
-    BsNoun,
-    Bs,
-    Profession,
     Industry,
 
     // Address
-    CityPrefix,
-    CitySuffix,
-    CityName,
-    CountryName,
-    CountryCode,
-    StreetSuffix,
+    Building,
     StreetName,
-    TimeZone,
+    CityName,
     StateName,
-    StateAbbr,
-    SecondaryAddressType,
-    SecondaryAddress,
-    ZipCode,
-    PostCode,
-    BuildingNumber,
+    CountryCode,
+    CountryName,
+    TimeZone,
+    Address,
+    ZipCode(bool), // use hyphen?
+    DomesticPhoneNumber(bool), // use hyphen?
     Latitude,
     Longitude,
 
-    // Phone Number
-    PhoneNumber,
-    CellNumber,
-
-    // Date / Time
-    Time,
-    Date,
-    DateTime,
-    // from day + first isize, to day + second isize based on now
-    DateTimeBetween(isize, isize),
+    // Date Time
+    // format-str: https://docs.rs/chrono/0.4.9/chrono/format/strftime/index.html#specifiers
+    // String is format. default is "%Y-%m-%d %H:%I:%M"'s sub-format.
+    // But, When Time(Date, DateTime), use only Time(Date, Time/Date)-formatter.
+    // ex. "219-11-02 21:09:31"
+    Time(String),
+    // now - 100year ~ now
+    Date(String),
+    // now - 100year ~ now
+    DateTime(String),
 
     // Filesystem
-    FilePath,
     FileName,
     FileExtension,
-    DirPath,
 }
 
-impl FromStr for Option {
-    type Err = OptionParseError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        unimplemented!()
-    }
-}
-
-impl Option {
-    pub fn has_range(&self) -> bool{
-        unimplemented!()
-    }
-
-    pub fn validate_range(&self) -> bool {
-        unimplemented!()
-    }
-
-    pub fn is_lang_data(&self) -> bool {
-        unimplemented!()
-    }
+impl FakeOption {
+    // category() -> Category
 }
