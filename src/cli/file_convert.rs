@@ -1,6 +1,12 @@
 use crate::cli::file_type::FileType;
 
+fn map_string_formatted(data: &[String]) -> Vec<String> {
+    data.iter().map(|d| format!("\"{}\"", d)).collect()
+}
+
+/// one line
 pub fn convert_from_record(file_type: FileType, header: &[String], record: &[String]) -> String {
+    assert_eq!(header.len(), record.len());
     // assume recode's format is such as ["\"xxx\"", "\"Xsc\""]
     match file_type {
         FileType::CSV => to_csv(record),
@@ -9,7 +15,17 @@ pub fn convert_from_record(file_type: FileType, header: &[String], record: &[Str
     }
 }
 
-pub fn convert_from_data_set(file_type: FileType, header: &[String], data_set: &[Vec<String>]) -> String {
+/// many lines
+pub fn convert_from_data_set(
+    file_type: FileType,
+    header: &[String],
+    data_set: &[Vec<String>],
+) -> String {
+    let header_len: usize = header.len();
+    for data in data_set {
+        assert_eq!(header_len, data.len());
+    }
+
     let mut lines: Vec<String> = Vec::new();
     match file_type {
         FileType::CSV => {
@@ -17,22 +33,22 @@ pub fn convert_from_data_set(file_type: FileType, header: &[String], data_set: &
             for data in data_set {
                 lines.push(to_csv(data));
             }
-        },
+        }
         FileType::TSV => {
             lines.push(to_tsv(&map_string_formatted(header)));
             for data in data_set {
                 lines.push(to_tsv(data));
             }
-        },
+        }
         FileType::JSON => {
             lines.push("{".to_string());
             let mut items: Vec<String> = Vec::new();
-            lines.push(format!("{}\"fake\": [", " ".repeat(4*1)));
+            lines.push(format!("{}\"fake\": [", " ".repeat(4 * 1)));
             for data in data_set {
                 items.push(to_json(2, header, data));
             }
             lines.push(items.join(",\n"));
-            lines.push(format!("{}]", " ".repeat(4*1)));
+            lines.push(format!("{}]", " ".repeat(4 * 1)));
             lines.push("}".to_string());
         }
     }
@@ -48,10 +64,11 @@ fn to_tsv(record: &[String]) -> String {
 }
 
 fn to_json(indent: u8, header: &[String], record: &[String]) -> String {
-    let space: String =  " ".repeat(4 * indent as usize);
-    let mut s_vec: Vec<String> = vec![format!("{}{{",space)];
-    assert_eq!(header.len(), record.len());
-    let items: Vec<String> = header.iter().zip(record)
+    let space: String = " ".repeat(4 * indent as usize);
+    let mut s_vec: Vec<String> = vec![format!("{}{{", space)];
+    let items: Vec<String> = header
+        .iter()
+        .zip(record)
         .map(|(h, r)| format!("    {}\"{}\": {}", space, h, r))
         .collect();
     s_vec.push(items.join(",\n"));

@@ -2,7 +2,7 @@
 pub enum FileType {
     CSV,
     TSV,
-    JSON
+    JSON,
 }
 
 impl Default for FileType {
