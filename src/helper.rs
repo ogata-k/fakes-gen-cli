@@ -1,8 +1,8 @@
+use num_traits::Num;
+use rand::distributions::uniform::SampleUniform;
+use rand::seq::SliceRandom;
 use rand::Rng;
 use std::fmt::Display;
-use rand::seq::SliceRandom;
-use rand::distributions::uniform::SampleUniform;
-use num_traits::Num;
 
 pub fn string_formatted<T: Display + ?Sized>(text: &T) -> String {
     format!("\"{}\"", text)
@@ -34,14 +34,20 @@ pub fn gen_fraction_part<R: Rng>(rng: &mut R) -> f64 {
     gen_range(rng, 0 as f64, 0 as f64)
 }
 
-pub fn select_many<'a, R: Rng, I: ?Sized>(rng: &'a mut R, data: &'a [&I], minimum: usize, maximum: usize) -> Vec<&'a I> {
+pub fn select_many<'a, R: Rng, I: ?Sized>(
+    rng: &'a mut R,
+    data: &'a [&I],
+    minimum: usize,
+    maximum: usize,
+) -> Vec<&'a I> {
     let size: usize = gen_range(rng, minimum, maximum);
     return data.choose_multiple(rng, size).map(|i| *i).collect();
 }
 
 const ASCII: &'static str = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 const ALPHA_NUM: &'static str = "0123456789ABCDEFGHIJKLMNOPWRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const PASSWORD_CHAR: &'static str = "0123456789ABCDEFGHIJKLMNOPWRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()+-={}[]:;<>,./?_~|";
+const PASSWORD_CHAR: &'static str =
+    "0123456789ABCDEFGHIJKLMNOPWRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()+-={}[]:;<>,./?_~|";
 
 fn gen_chars<R: Rng>(base: &str, rng: &mut R, minimum: usize, maximum: usize) -> String {
     let size: usize = gen_range(rng, minimum, maximum);
@@ -49,8 +55,9 @@ fn gen_chars<R: Rng>(base: &str, rng: &mut R, minimum: usize, maximum: usize) ->
         base.as_bytes()
             .choose_multiple(rng, size)
             .cloned()
-            .collect()
-    ).unwrap()
+            .collect(),
+    )
+    .unwrap();
 }
 
 pub fn gen_ascii_chars<R: Rng>(rng: &mut R, from: usize, to: usize) -> String {
@@ -64,4 +71,3 @@ pub fn gen_alpha_num_chars<R: Rng>(gnd: &mut R, from: usize, to: usize) -> Strin
 pub fn gen_password_chars<R: Rng>(rng: &mut R, from: usize, to: usize) -> String {
     gen_chars(PASSWORD_CHAR, rng, from, to)
 }
-

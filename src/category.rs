@@ -1,5 +1,5 @@
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
-pub enum Category{
+pub enum Category {
     Fixed,
     Select,
     Lorem,
@@ -9,13 +9,13 @@ pub enum Category{
     Company,
     Address,
     DateTime,
-    FileSystem
+    FileSystem,
 }
 
 impl std::fmt::Display for Category {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         use Category::*;
-        let s: String =  match self {
+        let s: String = match self {
             Fixed => "Fixed",
             Select => "Select",
             Lorem => "Lorem",
@@ -25,8 +25,9 @@ impl std::fmt::Display for Category {
             Company => "Company",
             Address => "Address",
             DateTime => "DateTime",
-            FileSystem => "FileSystem"
-        }.to_string();
+            FileSystem => "FileSystem",
+        }
+        .to_string();
         write!(f, "{}", s)
     }
 }

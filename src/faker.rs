@@ -1,32 +1,32 @@
-use rand::{thread_rng, Rng};
-use crate::locale::Locale;
-use crate::fake_options::FakeOption;
-use rand::prelude::ThreadRng;
 use crate::each_lang::Generator;
+use crate::fake_options::FakeOption;
+use crate::locale::Locale;
+use rand::prelude::ThreadRng;
+use rand::{thread_rng, Rng};
 
 #[derive(Debug)]
-pub struct Faker<R: Rng>{
+pub struct Faker<R: Rng> {
     rng: R,
     locale: Locale,
-    generator: Generator
+    generator: Generator,
 }
 
 impl Default for Faker<ThreadRng> {
     fn default() -> Self {
-        Faker{
+        Faker {
             rng: thread_rng(),
             locale: Locale::default(),
-            generator: Generator::new(Locale::default())
+            generator: Generator::new(Locale::default()),
         }
     }
 }
 
 impl<R: Rng> Faker<R> {
     pub fn new(rng: R, locale: Locale) -> Faker<R> {
-        Faker{
+        Faker {
             rng,
             locale,
-            generator: Generator::new(locale)
+            generator: Generator::new(locale),
         }
     }
 

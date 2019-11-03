@@ -1,9 +1,9 @@
 use failure::Fail;
-use std::fmt::{Formatter, Error};
+use std::fmt::{Error, Formatter};
 
 #[derive(Debug, Eq, PartialEq, Clone, Fail)]
 pub struct OptionError {
-// TODO
+    // TODO
 }
 
 impl std::fmt::Display for OptionError {

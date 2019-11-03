@@ -59,7 +59,7 @@ pub enum FakeOption {
     CountryName,
     TimeZone,
     Address,
-    ZipCode(bool), // use hyphen?
+    ZipCode(bool),             // use hyphen?
     DomesticPhoneNumber(bool), // use hyphen?
     Latitude,
     Longitude,
@@ -127,7 +127,9 @@ impl std::fmt::Display for FakeOption {
             TimeZone => format!("{}.TimeZone", cat),
             Address => format!("{}.Address", cat),
             ZipCode(hyphen) => format!("{}.ZipCode(use_hyphen: {})", cat, hyphen),
-            DomesticPhoneNumber(hyphen) => format!("{}.DomesticPhoneNumber(use_hyphen: {})", cat, hyphen),
+            DomesticPhoneNumber(hyphen) => {
+                format!("{}.DomesticPhoneNumber(use_hyphen: {})", cat, hyphen)
+            }
             Latitude => format!("{}.Latitude", cat),
             Longitude => format!("{}.Longitude", cat),
             Time(format) => format!("{}.Time(format: {})", cat, format),
@@ -142,19 +144,44 @@ impl std::fmt::Display for FakeOption {
 }
 
 impl FakeOption {
-    pub fn category(&self) -> Category{
+    pub fn category(&self) -> Category {
         use FakeOption::*;
         match self {
-            FixedString(_)| FixedNotString(_) => Category::Fixed,
-            SelectString(_)| SelectNotString(_) => Category::Select,
-            Word| Words(_, _)| Sentence| Sentences(_, _)| Paragraph| Paragraphs(_, _) => Category::Lorem,
-            FirstName(_)| LastName(_)| FullName(_) => Category::Name,
-            Integer| IntegerRange(_, _)| Float| FloatRange(_, _)| Ascii(_, _)| Boolean => Category::Primitive,
-            Email| UserName | Password(_, _)| CreditCard| URL| IPv4| IPv6| RGB| RGBA| UserAgent| StatusCode => Category::Internet,
-            CompanySuffix| CompanyName| Industry => Category::Company,
-            Building| StreetName| CityName| StateName| CountryCode| CountryName| TimeZone| Address| ZipCode(_)| DomesticPhoneNumber(_)| Latitude| Longitude => Category::Address,
-            Time(_)| Date(_)| DateTime(_) => Category::DateTime,
-            FileName| Extension => Category::FileSystem,
+            FixedString(_) | FixedNotString(_) => Category::Fixed,
+            SelectString(_) | SelectNotString(_) => Category::Select,
+            Word | Words(_, _) | Sentence | Sentences(_, _) | Paragraph | Paragraphs(_, _) => {
+                Category::Lorem
+            }
+            FirstName(_) | LastName(_) | FullName(_) => Category::Name,
+            Integer | IntegerRange(_, _) | Float | FloatRange(_, _) | Ascii(_, _) | Boolean => {
+                Category::Primitive
+            }
+            Email
+            | UserName
+            | Password(_, _)
+            | CreditCard
+            | URL
+            | IPv4
+            | IPv6
+            | RGB
+            | RGBA
+            | UserAgent
+            | StatusCode => Category::Internet,
+            CompanySuffix | CompanyName | Industry => Category::Company,
+            Building
+            | StreetName
+            | CityName
+            | StateName
+            | CountryCode
+            | CountryName
+            | TimeZone
+            | Address
+            | ZipCode(_)
+            | DomesticPhoneNumber(_)
+            | Latitude
+            | Longitude => Category::Address,
+            Time(_) | Date(_) | DateTime(_) => Category::DateTime,
+            FileName | Extension => Category::FileSystem,
         }
     }
 }
