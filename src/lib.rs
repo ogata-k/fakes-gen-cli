@@ -3,7 +3,7 @@ extern crate num_traits;
 
 pub mod category;
 pub mod date_time_format;
-pub mod each_lang;
+pub mod each_locale;
 pub mod error;
 pub mod fake_options;
 pub mod faker;

@@ -1,4 +1,4 @@
-use crate::each_lang::Data;
+use crate::each_locale::Data;
 use crate::helper::gen_range;
 use rand::Rng;
 

@@ -1,4 +1,4 @@
-use crate::each_lang::Generator;
+use crate::each_locale::Generator;
 use crate::fake_options::FakeOption;
 use crate::locale::Locale;
 use rand::prelude::ThreadRng;

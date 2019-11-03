@@ -1,4 +1,4 @@
-use crate::each_lang::japan::JapanData;
+use crate::each_locale::japan::JapanData;
 use crate::fake_options::FakeOption;
 use crate::helper::{
     gen_alpha_num_chars, gen_ascii_chars, gen_fraction_part, gen_password_chars, gen_range,
