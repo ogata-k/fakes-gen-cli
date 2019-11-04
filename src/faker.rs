@@ -68,7 +68,7 @@ impl<R: Rng> Faker<R> {
     /// many record
     pub fn gen_data_set(&mut self, count: usize, options: &[FakeOption]) -> Vec<Vec<String>> {
         let mut data_set: Vec<Vec<String>> = Vec::new();
-        for i in 1..=count {
+        for _ in 1..=count {
             data_set.push(self.gen_record(options));
         }
         return data_set;
