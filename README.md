@@ -102,4 +102,8 @@ as Library
     Extension
 
 ## examples
-* **all**: show examples of all options.
+* **all_options**: show examples of all options.
+* **csv**: show record, data_set and full_form formatted csv for dummy of FullName and DateTime FakeOption.
+* **tsv**: show record, data_set and full_form formatted tsv for dummy of FullName and DateTime FakeOption.
+* **json**: show record, data_set and full_form formatted json for dummy of FullName and DateTime FakeOption.
+
