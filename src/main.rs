@@ -1,3 +1,8 @@
+use crate::cli::FakerApp;
+
+mod cli;
+
+// as cli
 fn main() {
-    println!("Hello Faker!");
+    FakerApp::new().run();
 }

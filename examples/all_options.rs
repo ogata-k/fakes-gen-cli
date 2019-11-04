@@ -1,14 +1,14 @@
 use fakes_gen::date_time_format::{
     DEFAULT_DATE_FORMAT, DEFAULT_DATE_TIME_FORMAT, DEFAULT_TIME_FORMAT,
 };
-use fakes_gen::fake_options::FakeOption;
+use fakes_gen::faker::fake_options::FakeOption;
+use fakes_gen::faker::locale::Locale;
 use fakes_gen::faker::Faker;
-use fakes_gen::locale::Locale;
-use rand::prelude::ThreadRng;
+use rand::rngs::ThreadRng;
 use rand::thread_rng;
-use FakeOption::*;
 
 fn main() {
+    use FakeOption::*;
     let all_options: Vec<FakeOption> = vec![
         // Fixed
         FixedString("Dummy String".to_string()),

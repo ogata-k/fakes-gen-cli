@@ -2,7 +2,7 @@ use fakes_gen::converter::file_convert::{to_data_set, to_full_form, to_record};
 use fakes_gen::converter::file_type::FileType;
 use fakes_gen::date_time_format::DEFAULT_DATE_TIME_FORMAT;
 use fakes_gen::faker::fake_options::FakeOption;
-use fakes_gen::faker::faker::Faker;
+use fakes_gen::faker::Faker;
 use rand::rngs::ThreadRng;
 
 fn main() {
