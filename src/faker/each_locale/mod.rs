@@ -1,10 +1,11 @@
-use crate::each_locale::japan::JapanData;
-use crate::fake_options::FakeOption;
+use crate::faker::each_locale::japan::JapanData;
+use crate::faker::fake_options::FakeOption;
+use crate::faker::locale::Locale;
 use crate::helper::{
     gen_alpha_num_chars, gen_ascii_chars, gen_fraction_part, gen_password_chars, gen_range,
     not_string_formatted, select, select_many, split, string_formatted,
 };
-use crate::locale::Locale;
+
 use chrono::{Datelike, Local, NaiveDate, NaiveDateTime, NaiveTime};
 use rand::Rng;
 use std::net::{Ipv4Addr, Ipv6Addr};

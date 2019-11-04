@@ -1,6 +1,6 @@
-use chrono::Local;
-use crate::date_time_format::DEFAULT_DATE_TIME_FORMAT;
 use crate::converter::file_type::FileType;
+use crate::date_time_format::DEFAULT_DATE_TIME_FORMAT;
+use chrono::Local;
 
 fn map_string_formatted(data: &[String]) -> Vec<String> {
     data.iter().map(|d| format!("\"{}\"", d)).collect()
@@ -15,14 +15,14 @@ pub fn to_record(header: &[String], record: &[String], file_type: FileType) -> O
                 return None;
             }
             return Some(converter.to_record(header, record));
-        },
+        }
         FileType::TSV => {
             let converter = TsvConverter::default();
             if converter.validate(header, record).is_none() {
                 return None;
             }
             return Some(converter.to_record(header, record));
-        },
+        }
         FileType::JSON => {
             let converter = JsonConverter::default();
             if converter.validate(header, record).is_none() {
@@ -34,25 +34,38 @@ pub fn to_record(header: &[String], record: &[String], file_type: FileType) -> O
 }
 
 /// many record
-pub fn to_data_set(header: &[String], data_set: &[Vec<String>], file_type: FileType) -> Option<String> {
+pub fn to_data_set(
+    header: &[String],
+    data_set: &[Vec<String>],
+    file_type: FileType,
+) -> Option<String> {
     match file_type {
         FileType::CSV => {
             let converter = CsvConverter::default();
-            if !data_set.iter().all(|d| converter.validate(header, &d).is_some()) {
+            if !data_set
+                .iter()
+                .all(|d| converter.validate(header, &d).is_some())
+            {
                 return None;
             }
             return Some(converter.to_data_set(header, data_set));
-        },
+        }
         FileType::TSV => {
             let converter = TsvConverter::default();
-            if !data_set.iter().all(|d| converter.validate(header, &d).is_some()) {
+            if !data_set
+                .iter()
+                .all(|d| converter.validate(header, &d).is_some())
+            {
                 return None;
             }
             return Some(converter.to_data_set(header, data_set));
-        },
+        }
         FileType::JSON => {
             let converter = JsonConverter::default();
-            if !data_set.iter().all(|d| converter.validate(header, &d).is_some()) {
+            if !data_set
+                .iter()
+                .all(|d| converter.validate(header, &d).is_some())
+            {
                 return None;
             }
             return Some(converter.to_data_set(header, data_set));
@@ -61,25 +74,38 @@ pub fn to_data_set(header: &[String], data_set: &[Vec<String>], file_type: FileT
 }
 
 /// full formed many record
-pub fn to_full_form(header: &[String], data_set: &[Vec<String>], file_type: FileType) -> Option<String> {
+pub fn to_full_form(
+    header: &[String],
+    data_set: &[Vec<String>],
+    file_type: FileType,
+) -> Option<String> {
     match file_type {
         FileType::CSV => {
             let converter = CsvConverter::default();
-            if !data_set.iter().all(|d| converter.validate(header, &d).is_some()) {
+            if !data_set
+                .iter()
+                .all(|d| converter.validate(header, &d).is_some())
+            {
                 return None;
             }
             return Some(converter.to_full_form(header, data_set));
-        },
+        }
         FileType::TSV => {
             let converter = TsvConverter::default();
-            if !data_set.iter().all(|d| converter.validate(header, &d).is_some()) {
+            if !data_set
+                .iter()
+                .all(|d| converter.validate(header, &d).is_some())
+            {
                 return None;
             }
             return Some(converter.to_full_form(header, data_set));
-        },
+        }
         FileType::JSON => {
             let converter = JsonConverter::default();
-            if !data_set.iter().all(|d| converter.validate(header, &d).is_some()) {
+            if !data_set
+                .iter()
+                .all(|d| converter.validate(header, &d).is_some())
+            {
                 return None;
             }
             return Some(converter.to_full_form(header, data_set));
@@ -88,7 +114,7 @@ pub fn to_full_form(header: &[String], data_set: &[Vec<String>], file_type: File
 }
 
 /// Converter
-trait Converter: Default{
+trait Converter: Default {
     // assertion
     fn validate(&self, header: &[String], record: &[String]) -> Option<()>;
 
@@ -103,7 +129,7 @@ struct CsvConverter {}
 
 impl Converter for CsvConverter {
     fn validate(&self, header: &[String], record: &[String]) -> Option<()> {
-        if header.len() == record.len() { 
+        if header.len() == record.len() {
             Some(())
         } else {
             None
@@ -143,7 +169,7 @@ impl Converter for TsvConverter {
             None
         }
     }
-    
+
     fn to_record(&self, _header: &[String], record: &[String]) -> String {
         record.join("\t")
     }
@@ -166,7 +192,6 @@ impl Converter for TsvConverter {
     }
 }
 
-
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 struct JsonConverter {
     indent: u8,
@@ -175,7 +200,7 @@ struct JsonConverter {
 
 impl Default for JsonConverter {
     fn default() -> Self {
-        JsonConverter{
+        JsonConverter {
             indent: 0,
             indent_space_count: 2,
         }
@@ -190,7 +215,7 @@ impl Converter for JsonConverter {
             None
         }
     }
-    
+
     fn to_record(&self, header: &[String], record: &[String]) -> String {
         let one_indent: String = " ".repeat(self.indent_space_count as usize);
         let indent: String = " ".repeat((self.indent_space_count * self.indent) as usize);
@@ -211,7 +236,10 @@ impl Converter for JsonConverter {
         let mut items: Vec<String> = Vec::new();
 
         lines.push(format!("{}[", indent));
-        let indented_converter: Self = JsonConverter{indent: self.indent+1, indent_space_count: self.indent_space_count};
+        let indented_converter: Self = JsonConverter {
+            indent: self.indent + 1,
+            indent_space_count: self.indent_space_count,
+        };
         for data in data_set {
             items.push(indented_converter.to_record(header, data));
         }
@@ -221,13 +249,21 @@ impl Converter for JsonConverter {
     }
 
     fn to_full_form(&self, header: &[String], data_set: &[Vec<String>]) -> String {
-        let one_indent =  " ".repeat(self.indent_space_count as usize);
+        let one_indent = " ".repeat(self.indent_space_count as usize);
         let indent: String = " ".repeat((self.indent_space_count * self.indent) as usize);
         let mut lines: Vec<String> = vec![format!("{}{{", indent)];
         let mut items: Vec<String> = Vec::new();
 
-        lines.push(format!("{}{}\"{}\": [", one_indent, indent, Local::now().format(DEFAULT_DATE_TIME_FORMAT)));
-        let indented_converter: Self = JsonConverter{indent: self.indent+2, indent_space_count: self.indent_space_count};
+        lines.push(format!(
+            "{}{}\"{}\": [",
+            one_indent,
+            indent,
+            Local::now().format(DEFAULT_DATE_TIME_FORMAT)
+        ));
+        let indented_converter: Self = JsonConverter {
+            indent: self.indent + 2,
+            indent_space_count: self.indent_space_count,
+        };
         for data in data_set {
             items.push(indented_converter.to_record(header, data));
         }
@@ -237,4 +273,3 @@ impl Converter for JsonConverter {
         return lines.join("\n");
     }
 }
-

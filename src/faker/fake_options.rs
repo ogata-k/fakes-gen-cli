@@ -1,4 +1,4 @@
-use crate::category::Category;
+use crate::faker::category::Category;
 
 #[derive(Eq, PartialEq, Debug)]
 pub enum FakeOption {

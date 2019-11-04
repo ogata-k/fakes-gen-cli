@@ -1,8 +1,10 @@
-use crate::category::Category;
-use crate::each_locale::Generator;
-use crate::fake_options::FakeOption;
 use crate::helper::split;
-use crate::locale::Locale;
+
+use crate::faker::category::Category;
+use crate::faker::each_locale::Generator;
+use crate::faker::fake_options::FakeOption;
+use crate::faker::locale::Locale;
+
 use rand::prelude::ThreadRng;
 use rand::{thread_rng, Rng};
 

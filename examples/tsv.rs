@@ -1,9 +1,9 @@
-use fakes_gen::faker::Faker;
-use rand::rngs::ThreadRng;
-use fakes_gen::fake_options::FakeOption;
-use fakes_gen::date_time_format::DEFAULT_DATE_FORMAT;
+use fakes_gen::converter::file_convert::{to_data_set, to_full_form, to_record};
 use fakes_gen::converter::file_type::FileType;
-use fakes_gen::converter::file_convert::{to_record, to_data_set, to_full_form};
+use fakes_gen::date_time_format::DEFAULT_DATE_TIME_FORMAT;
+use fakes_gen::faker::fake_options::FakeOption;
+use fakes_gen::faker::faker::Faker;
+use rand::rngs::ThreadRng;
 
 fn main() {
     let mut faker: Faker<ThreadRng> = Faker::default();
@@ -15,7 +15,7 @@ fn main() {
     let options: Vec<FakeOption> = vec![
         FakeOption::FullName(true), // as 2 column
         // FakeOption::FullName(false), // as 1 column, so delete column of "furigana"
-        FakeOption::DateTime(DEFAULT_DATE_FORMAT.to_string()),
+        FakeOption::DateTime(DEFAULT_DATE_TIME_FORMAT.to_string()),
     ];
 
     println!(

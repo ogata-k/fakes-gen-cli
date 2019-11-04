@@ -1,5 +1,7 @@
-use crate::each_locale::Data;
+use crate::faker::each_locale::Data;
+
 use crate::helper::gen_range;
+
 use rand::Rng;
 
 pub struct JapanData {}
