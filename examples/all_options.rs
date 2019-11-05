@@ -35,10 +35,13 @@ fn main() {
         // generate "name":"furigana"
         FirstName(true),
         FirstName(false),
+        FirstNameFurigana,
         LastName(true),
         LastName(false),
+        LastNameFurigana,
         FullName(true),
         FullName(false),
+        FullNameFurigana,
         // Primitive
         Integer,
         IntegerRange(-10, 10),

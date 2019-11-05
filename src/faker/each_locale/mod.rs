@@ -100,6 +100,10 @@ trait Rand: Data {
                     string_formatted(&target)
                 };
             }
+            FakeOption::FirstNameFurigana => {
+                let (_, furigana): (String, String) = split(select(rng, Self::FIRST_NAME));
+                string_formatted(&furigana)
+            }
             FakeOption::LastName(use_furigana) => {
                 let (target, furigana): (String, String) = split(select(rng, Self::LAST_NAME));
                 return if *use_furigana {
@@ -111,6 +115,10 @@ trait Rand: Data {
                 } else {
                     string_formatted(&target)
                 };
+            }
+            FakeOption::LastNameFurigana => {
+                let (_, furigana): (String, String) = split(select(rng, Self::LAST_NAME));
+                string_formatted(&furigana)
             }
             FakeOption::FullName(use_furigana) => {
                 let first: (String, String) = split(select(rng, Self::FIRST_NAME));
@@ -129,6 +137,16 @@ trait Rand: Data {
                 } else {
                     string_formatted(&name.0)
                 };
+            }
+            FakeOption::FullNameFurigana => {
+                let first: (String, String) = split(select(rng, Self::FIRST_NAME));
+                let last: (String, String) = split(select(rng, Self::LAST_NAME));
+                let furigana: String = if Self::IS_LAST_NAME_IS_FIRST {
+                    [last.1, first.1].join(" ")
+                } else {
+                    [first.1, last.1].join(" ")
+                };
+                string_formatted(&furigana)
             }
 
             // Primitive

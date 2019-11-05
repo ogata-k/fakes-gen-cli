@@ -21,8 +21,11 @@ pub enum FakeOption {
     // Name(use furigana)
     // generate "name":"furigana"
     FirstName(bool),
+    FirstNameFurigana,
     LastName(bool),
+    LastNameFurigana,
     FullName(bool),
+    FullNameFurigana,
 
     // Primitive
     Integer,
@@ -96,8 +99,11 @@ impl std::fmt::Display for FakeOption {
             Paragraph => format!("{}.Paragraph", cat),
             Paragraphs(from, to) => format!("{}.Paragraphs(count: {}<=n<={})", cat, from, to),
             FirstName(furigana) => format!("{}.FirstName(with_furigana: {})", cat, furigana),
+            FirstNameFurigana  => format!("{}.FirstNameFurigana", cat),
             LastName(furigana) => format!("{}.LastName(with_furigana: {})", cat, furigana),
+            LastNameFurigana => format!("{}.LastNameFurigana", cat),
             FullName(furigana) => format!("{}.FullName(with_furigana: {})", cat, furigana),
+            FullNameFurigana => format!("{}.FullNameFurigana", cat),
             Integer => format!("{}.Integer", cat),
             IntegerRange(from, to) => format!("{}.Integer(range: {}<=n<={})", cat, from, to),
             Float => format!("{}.Float", cat),
@@ -152,7 +158,7 @@ impl FakeOption {
             Word | Words(_, _) | Sentence | Sentences(_, _) | Paragraph | Paragraphs(_, _) => {
                 Category::Lorem
             }
-            FirstName(_) | LastName(_) | FullName(_) => Category::Name,
+            FirstName(_) | FirstNameFurigana | LastName(_) | LastNameFurigana | FullName(_) | FullNameFurigana => Category::Name,
             Integer | IntegerRange(_, _) | Float | FloatRange(_, _) | Ascii(_, _) | Boolean => {
                 Category::Primitive
             }
