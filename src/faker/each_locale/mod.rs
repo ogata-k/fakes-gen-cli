@@ -26,6 +26,14 @@ impl Generator {
             Locale::Japan => JapanData::gen(rng, option),
         }
     }
+    pub fn locale(&self) -> Locale {
+        self.locale
+    }
+    pub fn build_name(&self, last_name: &str, first_name: &str) -> String {
+        match self.locale {
+            Locale::Japan => JapanData::build_name(last_name, first_name),
+        }
+    }
 }
 
 trait Rand: Data {
@@ -89,15 +97,11 @@ trait Rand: Data {
 
             // Name
             FakeOption::FirstName(use_furigana) => {
-                let (target, furigana): (String, String) = split(select(rng, Self::FIRST_NAME));
+                let target: String = select(rng, Self::FIRST_NAME).to_string();
                 return if *use_furigana {
-                    [target, furigana]
-                        .iter()
-                        .map(|s| string_formatted(&s))
-                        .collect::<Vec<String>>()
-                        .join(":")
-                } else {
                     string_formatted(&target)
+                } else {
+                    string_formatted(&split(&target).0)
                 };
             }
             FakeOption::FirstNameFurigana => {
@@ -105,15 +109,11 @@ trait Rand: Data {
                 string_formatted(&furigana)
             }
             FakeOption::LastName(use_furigana) => {
-                let (target, furigana): (String, String) = split(select(rng, Self::LAST_NAME));
+                let target: String = select(rng, Self::LAST_NAME).to_string();
                 return if *use_furigana {
-                    [target, furigana]
-                        .iter()
-                        .map(|s| string_formatted(&s))
-                        .collect::<Vec<String>>()
-                        .join(":")
-                } else {
                     string_formatted(&target)
+                } else {
+                    string_formatted(&split(&target).0)
                 };
             }
             FakeOption::LastNameFurigana => {
@@ -123,17 +123,12 @@ trait Rand: Data {
             FakeOption::FullName(use_furigana) => {
                 let first: (String, String) = split(select(rng, Self::FIRST_NAME));
                 let last: (String, String) = split(select(rng, Self::LAST_NAME));
-                let name: (String, String) = if Self::IS_LAST_NAME_IS_FIRST {
-                    ([last.0, first.0].join(" "), [last.1, first.1].join(" "))
-                } else {
-                    ([first.0, last.0].join(" "), [first.1, last.1].join(" "))
-                };
+                let name: (String, String) = (
+                    Self::build_name(&last.0, &first.0),
+                    Self::build_name(&last.1, &first.1),
+                );
                 return if *use_furigana {
-                    [name.0, name.1]
-                        .iter()
-                        .map(|name| string_formatted(name))
-                        .collect::<Vec<String>>()
-                        .join(":")
+                    string_formatted(&[name.0, name.1].join(":"))
                 } else {
                     string_formatted(&name.0)
                 };
@@ -141,11 +136,7 @@ trait Rand: Data {
             FakeOption::FullNameFurigana => {
                 let first: (String, String) = split(select(rng, Self::FIRST_NAME));
                 let last: (String, String) = split(select(rng, Self::LAST_NAME));
-                let furigana: String = if Self::IS_LAST_NAME_IS_FIRST {
-                    [last.1, first.1].join(" ")
-                } else {
-                    [first.1, last.1].join(" ")
-                };
+                let furigana: String = Self::build_name(&last.1, &first.1);
                 string_formatted(&furigana)
             }
 
@@ -344,7 +335,7 @@ trait Data {
     // name data is made from target:furigana.
     // If you set the furigana, use target as furigana.
     // Name data is combine FIRST_NAME and LAST_NAME
-    const IS_LAST_NAME_IS_FIRST: bool;
+    fn build_name(last_name: &str, first_name: &str) -> String;
     const FIRST_NAME: &'static [&'static str];
     const LAST_NAME: &'static [&'static str];
 

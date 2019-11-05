@@ -99,7 +99,7 @@ impl std::fmt::Display for FakeOption {
             Paragraph => format!("{}.Paragraph", cat),
             Paragraphs(from, to) => format!("{}.Paragraphs(count: {}<=n<={})", cat, from, to),
             FirstName(furigana) => format!("{}.FirstName(with_furigana: {})", cat, furigana),
-            FirstNameFurigana  => format!("{}.FirstNameFurigana", cat),
+            FirstNameFurigana => format!("{}.FirstNameFurigana", cat),
             LastName(furigana) => format!("{}.LastName(with_furigana: {})", cat, furigana),
             LastNameFurigana => format!("{}.LastNameFurigana", cat),
             FullName(furigana) => format!("{}.FullName(with_furigana: {})", cat, furigana),
@@ -158,7 +158,8 @@ impl FakeOption {
             Word | Words(_, _) | Sentence | Sentences(_, _) | Paragraph | Paragraphs(_, _) => {
                 Category::Lorem
             }
-            FirstName(_) | FirstNameFurigana | LastName(_) | LastNameFurigana | FullName(_) | FullNameFurigana => Category::Name,
+            FirstName(_) | FirstNameFurigana | LastName(_) | LastNameFurigana | FullName(_)
+            | FullNameFurigana => Category::Name,
             Integer | IntegerRange(_, _) | Float | FloatRange(_, _) | Ascii(_, _) | Boolean => {
                 Category::Primitive
             }
@@ -189,5 +190,62 @@ impl FakeOption {
             Time(_) | Date(_) | DateTime(_) => Category::DateTime,
             FileName | Extension => Category::FileSystem,
         }
+    }
+
+    fn is_first_name(&self) -> bool {
+        if let FakeOption::FirstName(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_first_name_furigana(&self) -> bool {
+        if let FakeOption::FirstNameFurigana = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_last_name(&self) -> bool {
+        if let FakeOption::LastName(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_last_name_furigana(&self) -> bool {
+        if let FakeOption::LastNameFurigana = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_full_name(&self) -> bool {
+        if let FakeOption::FullName(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn is_full_name_furigana(&self) -> bool {
+        if let FakeOption::FullNameFurigana = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_person_name(&self) -> bool {
+        self.is_first_name()
+            || self.is_first_name_furigana()
+            || self.is_last_name()
+            || self.is_last_name_furigana()
+            || self.is_full_name()
+            || self.is_full_name_furigana()
     }
 }

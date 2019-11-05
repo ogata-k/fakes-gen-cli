@@ -8,13 +8,13 @@ use rand::rngs::ThreadRng;
 fn main() {
     let mut faker: Faker<ThreadRng> = Faker::default();
     let header: Vec<String> = vec![
-        "name".to_string(),
-        "furigana".to_string(),
+        "last_name".to_string(),
+        "last_name furigana".to_string(),
         "date time".to_string(),
     ];
     let options: Vec<FakeOption> = vec![
-        FakeOption::FullName(true), // as 2 column
-        // FakeOption::FullName(false), // as 1 column, so delete column of "furigana"
+        FakeOption::LastName(false),
+        FakeOption::LastNameFurigana,
         FakeOption::DateTime(DEFAULT_DATE_TIME_FORMAT.to_string()),
     ];
 

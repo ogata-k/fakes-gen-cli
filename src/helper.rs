@@ -21,6 +21,11 @@ pub fn split(text: &str) -> (String, String) {
     };
 }
 
+/// remove head and tail \" s
+pub fn trim_double_quoted(text: &str) -> String {
+    text.trim_matches(|c| c == '\"').to_string()
+}
+
 pub fn select<'a, R: Rng, I: ?Sized>(rng: &'a mut R, data: &'a [&I]) -> &'a I {
     return data.choose(rng).unwrap();
 }

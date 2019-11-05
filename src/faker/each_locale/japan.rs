@@ -567,7 +567,6 @@ impl Data for JapanData {
     ];
 
     // Name
-    const IS_LAST_NAME_IS_FIRST: bool = true;
     const FIRST_NAME: &'static [&'static str] = &[
         "宏之:ヒロユキ",
         "俊樹:トシキ",
@@ -732,6 +731,9 @@ impl Data for JapanData {
         "石田:イシダ",
         "西村:ニシムラ",
     ];
+    fn build_name(last_name: &str, first_name: &str) -> String {
+        [last_name, first_name].join(" ")
+    }
 
     // Company
     const COMPANY_SUFFIX: &'static [&'static str] = &[
