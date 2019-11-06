@@ -125,23 +125,23 @@ struct PersonName {
 
 impl PersonName {
     fn new<R: Rng>(rng: &mut R, generator: &mut Generator) -> Self {
-        let last_name: (String, String) = split(&generator.gen(rng, &FakeOption::LastName(true)));
-        let first_name: (String, String) = split(&generator.gen(rng, &FakeOption::LastName(true)));
+        let last_name: (String, String) = split(&trim_double_quoted(&generator.gen(rng, &FakeOption::LastName(true))));
+        let first_name: (String, String) = split(&trim_double_quoted(&generator.gen(rng, &FakeOption::FirstName(true))));
         let full_name: (String, String) = (
             generator.build_name(
-                &trim_double_quoted(&last_name.0),
-                &trim_double_quoted(&first_name.0),
+                &last_name.0,
+                &first_name.0,
             ),
             generator.build_name(
-                &trim_double_quoted(&last_name.1),
-                &trim_double_quoted(&first_name.1),
+                &last_name.1,
+                &first_name.1,
             ),
         );
         return PersonName {
-            first_name: trim_double_quoted(&first_name.0),
-            first_name_furigana: trim_double_quoted(&first_name.1),
-            last_name: trim_double_quoted(&last_name.0),
-            last_name_furigana: trim_double_quoted(&last_name.1),
+            first_name: first_name.0,
+            first_name_furigana: first_name.1,
+            last_name: last_name.0,
+            last_name_furigana: last_name.1,
             full_name: full_name.0,
             full_name_furigana: full_name.1,
         };
