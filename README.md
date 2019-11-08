@@ -107,3 +107,6 @@ as Library
 * **tsv**: show record, data_set and full_form formatted tsv for dummy of FullName and DateTime FakeOption.
 * **json**: show record, data_set and full_form formatted json for dummy of FullName and DateTime FakeOption.
 
+## TODO
+* FakeOption's item is to convert to form Category(EachOption)
+* can use as cli tool
