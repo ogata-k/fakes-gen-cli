@@ -12,6 +12,15 @@ pub enum Category {
     FileSystem,
 }
 
+impl Category {
+    pub fn all_list() -> Vec<Self> {
+        use Category::*;
+        vec![
+            Fixed, Select, Lorem, Name, Primitive, Internet, Company, Address, DateTime, FileSystem,
+        ]
+    }
+}
+
 impl std::fmt::Display for Category {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         use Category::*;

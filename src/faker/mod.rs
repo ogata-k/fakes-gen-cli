@@ -125,17 +125,15 @@ struct PersonName {
 
 impl PersonName {
     fn new<R: Rng>(rng: &mut R, generator: &mut Generator) -> Self {
-        let last_name: (String, String) = split(&trim_double_quoted(&generator.gen(rng, &FakeOption::LastName(true))));
-        let first_name: (String, String) = split(&trim_double_quoted(&generator.gen(rng, &FakeOption::FirstName(true))));
+        let last_name: (String, String) = split(&trim_double_quoted(
+            &generator.gen(rng, &FakeOption::LastName(true)),
+        ));
+        let first_name: (String, String) = split(&trim_double_quoted(
+            &generator.gen(rng, &FakeOption::FirstName(true)),
+        ));
         let full_name: (String, String) = (
-            generator.build_name(
-                &last_name.0,
-                &first_name.0,
-            ),
-            generator.build_name(
-                &last_name.1,
-                &first_name.1,
-            ),
+            generator.build_name(&last_name.0, &first_name.0),
+            generator.build_name(&last_name.1, &first_name.1),
         );
         return PersonName {
             first_name: first_name.0,

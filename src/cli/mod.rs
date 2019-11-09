@@ -1,5 +1,6 @@
 pub mod scanner;
 
+use crate::cli::scanner::Scanner;
 use clap::*;
 
 pub struct FakerApp<'a, 'b> {
@@ -17,6 +18,16 @@ impl<'a, 'b> FakerApp<'a, 'b> {
                         .long("usable")
                         .help("show list of all usable options for faker")
                         .takes_value(false),
+                )
+                .arg(
+                    Arg::with_name("formatter")
+                        .short("f")
+                        .long("formatter")
+                        .help("formatter or output")
+                        .default_value("csv")
+                        .case_insensitive(true)
+                        .possible_values(&vec!["csv", "tsv", "json"])
+                        .takes_value(true),
                 )
                 .arg(
                     Arg::with_name("header")
@@ -53,6 +64,7 @@ impl<'a, 'b> FakerApp<'a, 'b> {
         }
     }
 
+    /// TODO 実際の挙動
     pub fn run(self) {
         let m: ArgMatches = self.app.get_matches();
         if m.is_present("usable") {
@@ -62,6 +74,17 @@ impl<'a, 'b> FakerApp<'a, 'b> {
         // TODO make new faker
         // TODO run the faker
         println!("matches: {:?}", m); // TODO remove
+        if m.is_present("option") {
+            for option in m.values_of("option").unwrap() {
+                let scan_res = Scanner::new(option).scan();
+                if scan_res.is_err() {
+                    print!("ERR: {}", scan_res.err().unwrap());
+                } else {
+                    let (h, op) = scan_res.unwrap();
+                    println!("OK: ({}, {})", h, op);
+                }
+            }
+        }
     }
 
     fn print_usable_options() {
