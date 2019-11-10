@@ -10,10 +10,13 @@ MIT
 ## install
 as Library
     
- ```
-  // Cargo.toml
-  fakes-gen = "version"
- ```
+    // Cargo.toml
+    fakes-gen = "version"
+ 
+as CLI for latest version
+
+    cargo install --git https://github.com/ogata-k/fakes-gen-cli --branch master
+or get from releases 
 
 ## support fake option
 ### Fixed user data
@@ -37,10 +40,13 @@ as Library
     Paragraphs(from, to)
 
 ### Name
-    // When use furigana, you set true to furigana parameter.
-    FirstName(furigana)
-    LastName(furigana)
-    FullName(furigana)
+    // When use with_furigana, you set true to furigana parameter.
+    FirstName(with_furigana)
+    FirstNameFurigana
+    LastName(with_furigana)
+    LastNameFurigana
+    FullName(with_furigana)
+    FullNameFurigana
 
 ### Primitive
     // You can use from and to paramator such as Lorem.
@@ -108,5 +114,7 @@ as Library
 * **json**: show record, data_set and full_form formatted json for dummy of FullName and DateTime FakeOption.
 
 ## TODO
-* FakeOption's item is to convert to form Category(EachOption)
-* can use as cli tool
+* ~~FakeOption's item is to convert to form Category(EachOption)~~
+* ~~can use as cli tool~~
+* add Primitive.Utf8 to FakeOption
+* move helper's [not_]string_formatted to each Converter
