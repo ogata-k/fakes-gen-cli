@@ -23,6 +23,7 @@ impl<'a, 'b> FakerApp<'a, 'b> {
         FakerApp {
             app: app_from_crate!()
                 .help_short("H")
+                .help_message("Print this message")
                 .arg(
                     Arg::with_name("usable")
                         .short("u")
@@ -83,12 +84,17 @@ impl<'a, 'b> FakerApp<'a, 'b> {
     }
 
     pub fn run(self) {
+        let mut app = self.app.clone();
         let m: ArgMatches = self.app.get_matches();
         if m.is_present("usable") {
             return Self::print_usable_options();
         }
         if m.is_present("bnf") {
             return Self::print_bnf();
+        }
+        if !m.is_present("option") {
+            app.print_help();
+            return;
         }
 
         let locale: Locale = match m.value_of("locale").unwrap() {
@@ -130,12 +136,12 @@ impl<'a, 'b> FakerApp<'a, 'b> {
                     options.push(op);
                 }
             }
-        }
-        if !errors.is_empty() {
-            for error in errors {
-                eprintln!("{}", error);
+            if !errors.is_empty() {
+                for error in errors {
+                    eprintln!("{}", error);
+                }
+                return;
             }
-            return;
         }
 
         let mut faker = Faker::new(thread_rng(), locale);
