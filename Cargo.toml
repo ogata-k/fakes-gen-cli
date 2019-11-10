@@ -2,6 +2,7 @@
 name = "fakes-gen"
 version = "0.1.0"
 authors = ["ogata-k <ogtkzk712@gmail.com>"]
+license = "MIT"
 description = "This CLI tool is generate dummys whose option you specified.\nYou can also specify formatter for csv, tsv and json.\nThis program support multi-locale. When not support your locale and you want your locale faker, please pull-request your locale dummy data at https://github.com/ogata-k/fakes-gen-cli/pulls."
 edition = "2018"
 
