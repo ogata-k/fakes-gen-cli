@@ -1,4 +1,6 @@
-use fakes_gen::converter::file_convert::{to_data_set, to_full_form, to_record};
+use fakes_gen::converter::file_convert::{
+    to_data_set, to_full_form, to_record, to_record_with_header,
+};
 use fakes_gen::converter::file_type::FileType;
 use fakes_gen::date_time_format::DEFAULT_DATE_TIME_FORMAT;
 use fakes_gen::faker::fake_options::FakeOption;
@@ -29,8 +31,12 @@ fn main() {
     ];
 
     println!(
-        "record:\n{}",
+        "record:\n{}\n",
         to_record(&header, &faker.gen_record(&options), FileType::JSON).unwrap()
+    );
+    println!(
+        "record_with_header:\n{}",
+        to_record_with_header(&header, &faker.gen_record(&options), FileType::JSON).unwrap()
     );
     println!(
         "\ndata_set:\n{}",

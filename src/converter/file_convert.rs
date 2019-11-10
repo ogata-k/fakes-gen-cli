@@ -33,6 +33,37 @@ pub fn to_record(header: &[String], record: &[String], file_type: FileType) -> O
     }
 }
 
+/// one record with header
+pub fn to_record_with_header(
+    header: &[String],
+    record: &[String],
+    file_type: FileType,
+) -> Option<String> {
+    match file_type {
+        FileType::CSV => {
+            let converter = CsvConverter::default();
+            if converter.validate(header, record).is_none() {
+                return None;
+            }
+            return Some(converter.to_record_with_header(header, record));
+        }
+        FileType::TSV => {
+            let converter = TsvConverter::default();
+            if converter.validate(header, record).is_none() {
+                return None;
+            }
+            return Some(converter.to_record_with_header(header, record));
+        }
+        FileType::JSON => {
+            let converter = JsonConverter::default();
+            if converter.validate(header, record).is_none() {
+                return None;
+            }
+            return Some(converter.to_record_with_header(header, record));
+        }
+    }
+}
+
 /// many record
 pub fn to_data_set(
     header: &[String],
@@ -120,6 +151,7 @@ trait Converter: Default {
 
     // do not assertion
     fn to_record(&self, header: &[String], record: &[String]) -> String;
+    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String;
     fn to_data_set(&self, header: &[String], data_set: &[Vec<String>]) -> String;
     fn to_full_form(&self, header: &[String], data_set: &[Vec<String>]) -> String;
 }
@@ -138,6 +170,13 @@ impl Converter for CsvConverter {
 
     fn to_record(&self, _header: &[String], record: &[String]) -> String {
         record.join(",")
+    }
+
+    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String {
+        let mut lines: Vec<String> = Vec::new();
+        lines.push(self.to_record(header, &map_string_formatted(header)));
+        lines.push(self.to_record(header, record));
+        return lines.join("\n");
     }
 
     fn to_data_set(&self, _header: &[String], data_set: &[Vec<String>]) -> String {
@@ -172,6 +211,13 @@ impl Converter for TsvConverter {
 
     fn to_record(&self, _header: &[String], record: &[String]) -> String {
         record.join("\t")
+    }
+
+    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String {
+        let mut lines: Vec<String> = Vec::new();
+        lines.push(self.to_record(header, &map_string_formatted(header)));
+        lines.push(self.to_record(header, record));
+        return lines.join("\n");
     }
 
     fn to_data_set(&self, _header: &[String], data_set: &[Vec<String>]) -> String {
@@ -215,7 +261,6 @@ impl Converter for JsonConverter {
             None
         }
     }
-
     fn to_record(&self, header: &[String], record: &[String]) -> String {
         let one_indent: String = " ".repeat(self.indent_space_count as usize);
         let indent: String = " ".repeat((self.indent_space_count * self.indent) as usize);
@@ -228,6 +273,10 @@ impl Converter for JsonConverter {
         s_vec.push(items.join(",\n"));
         s_vec.push(format!("{}}}", indent));
         return s_vec.join("\n");
+    }
+
+    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String {
+        self.to_record(header, record)
     }
 
     fn to_data_set(&self, header: &[String], data_set: &[Vec<String>]) -> String {

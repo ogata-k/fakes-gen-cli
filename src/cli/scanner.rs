@@ -1,3 +1,5 @@
+use crate::cli::helper::vec_to_str;
+
 use failure::Fail;
 use failure::_core::fmt::{Display, Error, Formatter};
 use failure::_core::str::FromStr;
@@ -12,6 +14,7 @@ pub struct Scanner {
 }
 
 impl Scanner {
+    // option name
     const FIXED_STRING: &'static str = "String";
     const FIXED_NOT_STRING: &'static str = "NotString";
     const SELECT_STRING: &'static str = "String";
@@ -60,15 +63,7 @@ impl Scanner {
     const DATE_TIME_DATE_TIME: &'static str = "DateTime";
     const FILE_SYSTEM_FILE_NAME: &'static str = "FileName";
     const FILE_SYSTEM_EXTENSION: &'static str = "Extension";
-    pub fn readable_options(category: Option<Category>) -> Vec<String> {
-        if category.is_none() {
-            let mut stack: Vec<String> = Vec::new();
-            for cat in Category::all_list() {
-                stack.append(&mut Self::readable_options(Some(cat)));
-            }
-            return stack;
-        }
-        let category = category.unwrap();
+    pub fn readable_options(category: Category) -> Vec<String> {
         use Category::*;
         match category {
             Fixed => Self::readable_fixed_options(),
@@ -257,53 +252,53 @@ impl Scanner {
     pub fn readable_address_options() -> Vec<String> {
         let mut stack: Vec<String> = Vec::new();
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_BUILDING,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_STREET_NAME,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_CITY_NAME,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_STATE_NAME,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_COUNTRY_CODE,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_COUNTRY_NAME,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_TIMEZONE,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_ADDRESS,
         ));
         stack.push(Self::option_format_has_no_necessary_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_ZIP_CODE,
             Self::BOOL_VAR,
         ));
         stack.push(Self::option_format_has_no_necessary_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_DOMESTIC_PHONE_NUMBER,
             Self::BOOL_VAR,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_LATITUDE,
         ));
         stack.push(Self::option_format_has_no_arg(
-            Category::Internet,
+            Category::Address,
             Self::ADDRESS_LONGITUDE,
         ));
         return stack;
@@ -342,7 +337,6 @@ impl Scanner {
         return stack;
     }
 
-    // TODO
     // variable
     const OPTION_VAR: &'static str = "<option>";
     const CATEGORY_VAR: &'static str = "<category>";
@@ -356,6 +350,7 @@ impl Scanner {
     const UNSIGNED_INTEGER_VAR: &'static str = "<unsigned_integer>";
     const BOOL_VAR: &'static str = "<bool>";
     const FORMAT_STRING_VAR: &'static str = "<format_string>";
+
     // value
     const OPTION_FORMAT: &'static str =
         "<category>.<option_name>\\(<column_name>(#<sub_option>)?\\)";
@@ -369,6 +364,62 @@ impl Scanner {
     const SIGNED_INTEGER_RANGE_FORMAT: &'static str = "-?<unsigned_integer>#-?<unsigned_integer>";
     const UNSIGNED_INTEGER_FORMAT: &'static str = "[0-9][1-9]*";
     const BOOL_FORMAT: &'static str = "(true)|(false)";
+
+    // format pair
+    const OPTION: (&'static str, &'static str) = (Scanner::OPTION_VAR, Scanner::OPTION_FORMAT);
+    const CATEGORY: (&'static str, &'static str) =
+        (Scanner::CATEGORY_VAR, Scanner::CATEGORY_FORMAT);
+    const OPTION_NAME: (&'static str, &'static str) =
+        (Scanner::OPTION_NAME_VAR, Scanner::OPTION_NAME_FORMAT);
+    const COLUMN_NAME: (&'static str, &'static str) =
+        (Scanner::COLUMN_NAME_VAR, Scanner::STRING_VAR);
+    const SUB_OPTION: (&'static str, &'static str) =
+        (Scanner::SUB_OPTION_VAR, Scanner::SUB_OPTION_FORMAT);
+    const STRING: (&'static str, &'static str) = (Scanner::STRING_VAR, Scanner::STRING_FORMAT);
+    const STRING_LIST: (&'static str, &'static str) =
+        (Scanner::STRING_LIST_VAR, Scanner::STRING_LIST_FORMAT);
+    const UNSIGNED_MIN_MAX: (&'static str, &'static str) = (
+        Scanner::UNSIGNED_INTEGER_RANGE_VAR,
+        Scanner::UNSIGNED_INTEGER_RANGE_FORMAT,
+    );
+    const SIGNED_MIN_MAX: (&'static str, &'static str) = (
+        Scanner::SIGNED_INTEGER_RANGE_VAR,
+        Scanner::SIGNED_INTEGER_RANGE_FORMAT,
+    );
+    const UNSIGNED_INT: (&'static str, &'static str) = (
+        Scanner::UNSIGNED_INTEGER_VAR,
+        Scanner::UNSIGNED_INTEGER_FORMAT,
+    );
+    const BOOL: (&'static str, &'static str) = (Scanner::BOOL_VAR, Scanner::BOOL_FORMAT);
+    const FORMAT_STRING: (&'static str, &'static str) =
+        (Scanner::FORMAT_STRING_VAR, Scanner::STRING_VAR);
+
+    fn all_format_pair() -> Vec<(&'static str, &'static str)> {
+        [
+            Self::OPTION,
+            Self::CATEGORY,
+            Self::OPTION_NAME,
+            Self::COLUMN_NAME,
+            Self::SUB_OPTION,
+            Self::STRING,
+            Self::STRING_LIST,
+            Self::UNSIGNED_MIN_MAX,
+            Self::SIGNED_MIN_MAX,
+            Self::UNSIGNED_INT,
+            Self::BOOL,
+            Self::FORMAT_STRING,
+        ]
+        .to_vec()
+    }
+
+    // format pair
+    pub fn all_format_bnf() -> Vec<String> {
+        Self::all_format_pair()
+            .iter()
+            .map(|(var, format)| format!("{} := {}", var, format))
+            .collect()
+    }
+
     fn option_format(category: Category, option_name: &str, arg_format: &str) -> String {
         format!(
             "{}.{}\\({}#{}\\)",
@@ -442,7 +493,9 @@ impl Scanner {
         return Ok(subs.to_vec());
     }
 
-    fn parse_int_range<T: FromStr>(subs: &[String]) -> Result<(T, T), ScannerError> {
+    fn parse_int_range<T: FromStr + Ord + ToString>(
+        subs: &[String],
+    ) -> Result<(T, T), ScannerError> {
         if subs.len() != 2 {
             return Err(ScannerError::UnknownIntegerListFormat(subs.to_vec()));
         }
@@ -451,7 +504,12 @@ impl Scanner {
         if from.is_err() || to.is_err() {
             return Err(ScannerError::UnknownIntegerListFormat(subs.to_vec()));
         }
-        return Ok((from.ok().unwrap(), to.ok().unwrap()));
+        let from = from.ok().unwrap();
+        let to = to.ok().unwrap();
+        if !(from <= to) {
+            return Err(ScannerError::RangeErr(from.to_string(), to.to_string()));
+        }
+        return Ok((from, to));
     }
 
     fn parse_bool(subs: &[String]) -> Result<bool, ScannerError> {
@@ -889,41 +947,14 @@ pub enum ScannerError {
     UnknownBooleanFormat(Vec<String>),
     UnknownStringListFormat(Vec<String>),
     UnknownIntegerListFormat(Vec<String>),
+    RangeErr(String, String),
 }
 
 impl ScannerError {
-    const OPTION: (&'static str, &'static str) = (Scanner::OPTION_VAR, Scanner::OPTION_FORMAT);
-    const CATEGORY: (&'static str, &'static str) =
-        (Scanner::CATEGORY_VAR, Scanner::CATEGORY_FORMAT);
-    const OPTION_NAME: (&'static str, &'static str) =
-        (Scanner::OPTION_NAME_VAR, Scanner::OPTION_NAME_FORMAT);
-    const COLUMN_NAME: (&'static str, &'static str) =
-        (Scanner::COLUMN_NAME_VAR, Scanner::STRING_VAR);
-    const SUB_OPTION: (&'static str, &'static str) =
-        (Scanner::SUB_OPTION_VAR, Scanner::SUB_OPTION_FORMAT);
-    const STRING: (&'static str, &'static str) = (Scanner::STRING_VAR, Scanner::STRING_FORMAT);
-    const STRING_LIST: (&'static str, &'static str) =
-        (Scanner::STRING_LIST_VAR, Scanner::STRING_LIST_FORMAT);
-    const UNSIGNED_MIN_MAX: (&'static str, &'static str) = (
-        Scanner::UNSIGNED_INTEGER_RANGE_VAR,
-        Scanner::UNSIGNED_INTEGER_RANGE_FORMAT,
-    );
-    const SIGNED_MIN_MAX: (&'static str, &'static str) = (
-        Scanner::SIGNED_INTEGER_RANGE_VAR,
-        Scanner::SIGNED_INTEGER_RANGE_FORMAT,
-    );
-    const UNSIGNED_INT: (&'static str, &'static str) = (
-        Scanner::UNSIGNED_INTEGER_VAR,
-        Scanner::UNSIGNED_INTEGER_FORMAT,
-    );
-    const BOOL: (&'static str, &'static str) = (Scanner::BOOL_VAR, Scanner::BOOL_FORMAT);
-    const FORMAT_STRING: (&'static str, &'static str) =
-        (Scanner::FORMAT_STRING_VAR, Scanner::STRING_VAR);
-
     fn write_messages(f: &mut Formatter<'_>, title: &str, options: &[(&str, &str)]) {
-        writeln!(f, "{}:", title);
+        write!(f, "{}:", title);
         for option in options {
-            writeln!(f, "\t{} := {}", option.0, option.1);
+            write!(f, "\n\t{} := {}", option.0, option.1);
         }
     }
 
@@ -936,29 +967,8 @@ impl ScannerError {
     }
 
     pub fn write_option_format(f: &mut Formatter<'_>) {
-        Self::write_messages(
-            f,
-            "Usable Option format",
-            &[
-                Self::OPTION,
-                Self::CATEGORY,
-                Self::OPTION_NAME,
-                Self::COLUMN_NAME,
-                Self::SUB_OPTION,
-                Self::STRING,
-                Self::STRING_LIST,
-                Self::UNSIGNED_MIN_MAX,
-                Self::SIGNED_MIN_MAX,
-                Self::UNSIGNED_INT,
-                Self::BOOL,
-                Self::FORMAT_STRING,
-            ],
-        );
+        Self::write_messages(f, "Usable Option format", &Scanner::all_format_pair());
     }
-}
-
-fn vec_to_str<T: Display>(list: &[T]) -> String {
-    format!("[{}]", list.iter().map(|l| format!("\"{}\"", l.to_string())).collect::<Vec<String>>().join(", "))
 }
 
 impl Display for ScannerError {
@@ -967,14 +977,14 @@ impl Display for ScannerError {
         match self {
             UnknownCategory(s) => {
                 writeln!(f, "Unknown Category is {}", s);
-                writeln!(
+                write!(
                     f,
                     "Usable Category is {}",
                     vec_to_str(
                         &Category::all_list()
-                        .iter()
-                        .map(|c| c.to_string())
-                        .collect::<Vec<String>>()
+                            .iter()
+                            .map(|c| c.to_string())
+                            .collect::<Vec<String>>()
                     )
                 );
                 Ok(())
@@ -985,30 +995,28 @@ impl Display for ScannerError {
                 Ok(())
             }
             UnknownOption(s, c) => {
-                writeln!(f, "Unknown Option is {}", s);
+                writeln!(f, "Unknown Option is \"{}\"", s);
                 writeln!(f, "Usable Option's format is {}", Scanner::OPTION_FORMAT);
-                writeln!(
+                write!(
                     f,
                     "And usable Option is {}",
-                    vec_to_str(
-                    &Scanner::readable_options(Some(*c))
-                    )
+                    vec_to_str(&Scanner::readable_options(*c))
                 );
                 Ok(())
             }
             UnknownCharacters(s_list) => {
                 // because of s_list is characters of splitting # before.
-                writeln!(f, "Unknown characters \"{}\"", s_list.join("#"));
+                write!(f, "Unknown characters \"{}\"", s_list.join("#"));
                 Ok(())
             }
             UnknownStringFormat(s_list) => {
                 Self::write_unknown_format_of_vec(f, s_list);
-                Self::write_messages(f, "Usable String format", &[Self::STRING]);
+                Self::write_messages(f, "Usable String format", &[Scanner::STRING]);
                 Ok(())
             }
             UnknownBooleanFormat(s_list) => {
                 Self::write_unknown_format_of_vec(f, s_list);
-                Self::write_messages(f, "Usable Boolean format", &[Self::BOOL]);
+                Self::write_messages(f, "Usable Boolean format", &[Scanner::BOOL]);
                 Ok(())
             }
             UnknownStringListFormat(s_list) => {
@@ -1016,7 +1024,7 @@ impl Display for ScannerError {
                 Self::write_messages(
                     f,
                     "Usable String list format",
-                    &[Self::STRING_LIST, Self::STRING],
+                    &[Scanner::STRING_LIST, Scanner::STRING],
                 );
                 Ok(())
             }
@@ -1026,11 +1034,15 @@ impl Display for ScannerError {
                     f,
                     "Usable Integer list format",
                     &[
-                        Self::UNSIGNED_MIN_MAX,
-                        Self::SIGNED_MIN_MAX,
-                        Self::UNSIGNED_INT,
+                        Scanner::UNSIGNED_MIN_MAX,
+                        Scanner::SIGNED_MIN_MAX,
+                        Scanner::UNSIGNED_INT,
                     ],
                 );
+                Ok(())
+            }
+            RangeErr(from, to) => {
+                write!(f, "Range Err: {} is not larger than {}", from, to);
                 Ok(())
             }
         }
