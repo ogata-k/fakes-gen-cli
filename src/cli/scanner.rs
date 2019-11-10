@@ -648,7 +648,7 @@ impl Scanner {
         }
         if option_name == Self::NAME_FIRST_NAME_FURIGANA {
             Self::parse_none(&Self::split(sub_option_str))?;
-            return Ok(FakeOption::FirstName(false));
+            return Ok(FakeOption::FirstNameFurigana);
         }
         if option_name == Self::NAME_LAST_NAME {
             Self::parse_none(&Self::split(sub_option_str))?;
@@ -656,7 +656,7 @@ impl Scanner {
         }
         if option_name == Self::NAME_LAST_NAME_FURIGANA {
             Self::parse_none(&Self::split(sub_option_str))?;
-            return Ok(FakeOption::FirstName(false));
+            return Ok(FakeOption::FirstNameFurigana);
         }
         if option_name == Self::NAME_FULL_NAME {
             Self::parse_none(&Self::split(sub_option_str))?;
@@ -664,7 +664,7 @@ impl Scanner {
         }
         if option_name == Self::NAME_FULL_NAME_FURIGANA {
             Self::parse_none(&Self::split(sub_option_str))?;
-            return Ok(FakeOption::FullName(false));
+            return Ok(FakeOption::FullNameFurigana);
         }
         return Err(ScannerError::UnknownOption(
             option_name.to_string(),
