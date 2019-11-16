@@ -3,7 +3,7 @@ use crate::cli::helper::vec_to_str;
 use failure::Fail;
 use failure::_core::fmt::{Display, Error, Formatter};
 use failure::_core::str::FromStr;
-use fakes_gen::date_time_format::{DEFAULT_DATE_TIME_FORMAT, DEFAULT_TIME_FORMAT};
+use fakes_gen::date_time_format::{DEFAULT_DATE_TIME_FORMAT, DEFAULT_TIME_FORMAT, DEFAULT_DATE_FORMAT};
 use fakes_gen::faker::category::Category;
 use fakes_gen::faker::fake_options::FakeOption;
 use regex::{Captures, Regex};
@@ -868,7 +868,7 @@ impl Scanner {
         }
         if option_name == Self::DATE_TIME_DATE {
             if sub_option_str == "" {
-                return Ok(FakeOption::Date(DEFAULT_TIME_FORMAT.to_string()));
+                return Ok(FakeOption::Date(DEFAULT_DATE_FORMAT.to_string()));
             } else {
                 return Ok(FakeOption::Date(Self::parse_string(&Self::split(
                     sub_option_str,
