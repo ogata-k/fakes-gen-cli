@@ -355,7 +355,7 @@ impl Scanner {
 
     // value
     const OPTION_FORMAT: &'static str =
-        "<category>.<option_name>\\(<column_name>(#<sub_option>)?\\)";
+        "<category>\\.<option_name>\\(<column_name>(#<sub_option>)?\\)";
     const CATEGORY_FORMAT: &'static str = "[A-Z][0-9a-zA-Z]*";
     const OPTION_NAME_FORMAT: &'static str = "[A-Z][0-9a-zA-Z]*";
     const SUB_OPTION_FORMAT: &'static str =
