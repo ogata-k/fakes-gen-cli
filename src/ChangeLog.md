@@ -1,3 +1,6 @@
+# v0.1.2
+Change --header flag to --fullform and modify behavior when using this flag.
+
 # v0.1.1
 Modify lacked information.
 

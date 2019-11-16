@@ -3,7 +3,9 @@ use crate::cli::helper::vec_to_str;
 use failure::Fail;
 use failure::_core::fmt::{Display, Error, Formatter};
 use failure::_core::str::FromStr;
-use fakes_gen::date_time_format::{DEFAULT_DATE_TIME_FORMAT, DEFAULT_TIME_FORMAT, DEFAULT_DATE_FORMAT};
+use fakes_gen::date_time_format::{
+    DEFAULT_DATE_FORMAT, DEFAULT_DATE_TIME_FORMAT, DEFAULT_TIME_FORMAT,
+};
 use fakes_gen::faker::category::Category;
 use fakes_gen::faker::fake_options::FakeOption;
 use regex::{Captures, Regex};
