@@ -658,7 +658,7 @@ impl Scanner {
         }
         if option_name == Self::NAME_LAST_NAME_FURIGANA {
             Self::parse_none(&Self::split(sub_option_str))?;
-            return Ok(FakeOption::FirstNameFurigana);
+            return Ok(FakeOption::LastNameFurigana);
         }
         if option_name == Self::NAME_FULL_NAME {
             Self::parse_none(&Self::split(sub_option_str))?;
