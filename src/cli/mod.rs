@@ -22,7 +22,6 @@ impl<'a, 'b> FakerApp<'a, 'b> {
     pub fn new() -> FakerApp<'a, 'b> {
         FakerApp {
             app: app_from_crate!()
-                .help_short("H")
                 .help_message("Print this message")
                 .arg(
                     Arg::with_name("usable")
@@ -68,10 +67,10 @@ impl<'a, 'b> FakerApp<'a, 'b> {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("header")
-                        .short("h")
-                        .long("header")
-                        .help("flag of use generate header")
+                    Arg::with_name("fullform")
+                        .short("f")
+                        .long("fullform")
+                        .help("flag for generating as fullform such as body with header")
                         .takes_value(false),
                 )
                 .arg(
@@ -146,7 +145,7 @@ impl<'a, 'b> FakerApp<'a, 'b> {
 
         let mut faker = Faker::new(thread_rng(), locale);
         if size == 1 {
-            if m.is_present("header") {
+            if m.is_present("fullform") {
                 print!(
                     "{}",
                     to_record_with_header(&header, &faker.gen_record(&options), converter).unwrap()
@@ -159,15 +158,15 @@ impl<'a, 'b> FakerApp<'a, 'b> {
             }
             return;
         } else {
-            if m.is_present("header") {
+            if m.is_present("fullform") {
                 print!(
                     "{}",
-                    to_data_set(&header, &faker.gen_data_set(size, &options), converter).unwrap()
+                    to_full_form(&header, &faker.gen_data_set(size, &options), converter).unwrap()
                 );
             } else {
                 print!(
                     "{}",
-                    to_full_form(&header, &faker.gen_data_set(size, &options), converter).unwrap()
+                    to_data_set(&header, &faker.gen_data_set(size, &options), converter).unwrap()
                 );
             }
             return;
