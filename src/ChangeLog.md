@@ -2,6 +2,7 @@
 Change --header flag to --fullform and modify behavior when using this flag.
 Modify message of the command ```fakes-gen --bnf```.
 Modify furigana of last name.
+Add cli section to README.md
 
 # v0.1.1
 Modify lacked information.
