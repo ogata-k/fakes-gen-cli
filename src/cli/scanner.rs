@@ -467,7 +467,7 @@ impl Scanner {
     fn split(target: &str) -> Vec<String> {
         let s_list: Vec<String> = target
             .split("#")
-            .filter_map(|s| if s == "" { None } else { Some(s.to_string()) })
+            .map(|s: &str| s.to_string())
             .collect();
         return s_list;
     }
