@@ -6,34 +6,38 @@ use fakes_gen::date_time_format::DEFAULT_DATE_TIME_FORMAT;
 use fakes_gen::faker::fake_options::FakeOption;
 use fakes_gen::faker::Faker;
 use rand::rngs::ThreadRng;
+use std::io;
+use std::io::Write;
 
-fn main() {
+fn main() -> io::Result<()> {
     let mut faker: Faker<ThreadRng> = Faker::default();
-    let header: Vec<String> = vec![
-        "first_name_with_furigana".to_string(),
-        "furigana".to_string(),
-        "date time".to_string(),
-    ];
-    let options: Vec<FakeOption> = vec![
-        FakeOption::FirstName(true),
-        FakeOption::FirstNameFurigana,
-        FakeOption::DateTime(DEFAULT_DATE_TIME_FORMAT.to_string()),
+    let header_options: Vec<(String, FakeOption)> = vec![
+        (
+            "first_name_with_furigana".to_string(),
+            FakeOption::FirstName(true),
+        ),
+        ("furigana".to_string(), FakeOption::FirstNameFurigana),
+        (
+            "date time".to_string(),
+            FakeOption::DateTime(DEFAULT_DATE_TIME_FORMAT.to_string()),
+        ),
     ];
 
-    println!(
-        "record:\n{}\n",
-        to_record(&header, &faker.gen_record(&options), FileType::CSV).unwrap()
-    );
-    println!(
-        "record_with_header:\n{}",
-        to_record_with_header(&header, &faker.gen_record(&options), FileType::CSV).unwrap()
-    );
-    println!(
-        "\ndata_set:\n{}",
-        to_data_set(&header, &faker.gen_data_set(10, &options), FileType::CSV).unwrap()
-    );
-    println!(
-        "\nfull_form:\n{}",
-        to_full_form(&header, &faker.gen_data_set(10, &options), FileType::CSV).unwrap()
-    );
+    let mut writer = std::io::stdout();
+
+    write!(writer, "record:\n")?;
+    to_record(&mut writer, &mut faker, FileType::CSV, &header_options)?;
+
+    write!(writer, "\n\n")?;
+    write!(writer, "record_with_header:\n")?;
+    to_record_with_header(&mut writer, &mut faker, FileType::CSV, &header_options)?;
+
+    write!(writer, "\n\n")?;
+    write!(writer, "data_set:\n")?;
+    to_data_set(&mut writer, &mut faker, FileType::CSV, &header_options, 10)?;
+
+    write!(writer, "\n\n")?;
+    write!(writer, "full_form:\n")?;
+    to_full_form(&mut writer, &mut faker, FileType::CSV, &header_options, 10)?;
+    writer.flush()
 }

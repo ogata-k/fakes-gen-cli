@@ -464,12 +464,13 @@ impl Scanner {
     // ---
     // helper
     // ---
-    fn split(target: &str) -> Vec<String> {
-        let s_list: Vec<String> = target
-            .split("#")
-            .map(|s: &str| s.to_string())
-            .collect();
-        return s_list;
+    fn split(target: Option<&str>) -> Vec<String> {
+        if let Some(target) = target {
+            let s_list: Vec<String> = target.split("#").map(|s: &str| s.to_string()).collect();
+            return s_list;
+        } else {
+            return Vec::new();
+        }
     }
 
     // ---
@@ -565,7 +566,7 @@ impl Scanner {
     fn parse_fixed(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::FIXED_STRING {
             return Ok(FakeOption::FixedString(Self::parse_string(&Self::split(
@@ -586,7 +587,7 @@ impl Scanner {
     fn parse_select(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::SELECT_STRING {
             return Ok(FakeOption::SelectString(Self::parse_string_list(
@@ -607,10 +608,10 @@ impl Scanner {
     fn parse_lorem(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::LOREM_WORD {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::Word);
             } else {
                 let ints = Self::parse_int_range::<usize>(&Self::split(sub_option_str))?;
@@ -618,7 +619,7 @@ impl Scanner {
             }
         }
         if option_name == Self::LOREM_SENTENCE {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::Sentence);
             } else {
                 let ints = Self::parse_int_range::<usize>(&Self::split(sub_option_str))?;
@@ -626,7 +627,7 @@ impl Scanner {
             }
         }
         if option_name == Self::LOREM_PARAGRAPH {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::Paragraph);
             } else {
                 let ints = Self::parse_int_range::<usize>(&Self::split(sub_option_str))?;
@@ -642,7 +643,7 @@ impl Scanner {
     fn parse_name(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::NAME_FIRST_NAME {
             Self::parse_none(&Self::split(sub_option_str))?;
@@ -677,10 +678,10 @@ impl Scanner {
     fn parse_primitive(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::PRIMITIVE_INTEGER {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::Integer);
             } else {
                 let ints = Self::parse_int_range::<isize>(&Self::split(sub_option_str))?;
@@ -688,7 +689,7 @@ impl Scanner {
             }
         }
         if option_name == Self::PRIMITIVE_FLOAT {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::Float);
             } else {
                 let ints = Self::parse_int_range::<isize>(&Self::split(sub_option_str))?;
@@ -712,7 +713,7 @@ impl Scanner {
     fn parse_internet(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::INTERNET_EMAIL {
             Self::parse_none(&Self::split(sub_option_str))?;
@@ -767,7 +768,7 @@ impl Scanner {
     fn parse_company(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::COMPANY_SUFFIX {
             Self::parse_none(&Self::split(sub_option_str))?;
@@ -790,7 +791,7 @@ impl Scanner {
     fn parse_address(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::ADDRESS_BUILDING {
             Self::parse_none(&Self::split(sub_option_str))?;
@@ -825,7 +826,7 @@ impl Scanner {
             return Ok(FakeOption::Address);
         }
         if option_name == Self::ADDRESS_ZIP_CODE {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::ZipCode(false));
             }
             return Ok(FakeOption::ZipCode(Self::parse_bool(&Self::split(
@@ -833,7 +834,7 @@ impl Scanner {
             ))?));
         }
         if option_name == Self::ADDRESS_DOMESTIC_PHONE_NUMBER {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::DomesticPhoneNumber(false));
             }
             return Ok(FakeOption::DomesticPhoneNumber(Self::parse_bool(
@@ -857,10 +858,10 @@ impl Scanner {
     fn parse_datetime(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::DATE_TIME_TIME {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::Time(DEFAULT_TIME_FORMAT.to_string()));
             } else {
                 return Ok(FakeOption::Time(Self::parse_string(&Self::split(
@@ -869,7 +870,7 @@ impl Scanner {
             }
         }
         if option_name == Self::DATE_TIME_DATE {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::Date(DEFAULT_DATE_FORMAT.to_string()));
             } else {
                 return Ok(FakeOption::Date(Self::parse_string(&Self::split(
@@ -878,7 +879,7 @@ impl Scanner {
             }
         }
         if option_name == Self::DATE_TIME_DATE_TIME {
-            if sub_option_str == "" {
+            if sub_option_str.is_none() {
                 return Ok(FakeOption::DateTime(DEFAULT_DATE_TIME_FORMAT.to_string()));
             } else {
                 return Ok(FakeOption::DateTime(Self::parse_string(&Self::split(
@@ -895,7 +896,7 @@ impl Scanner {
     fn parse_filesystem(
         &self,
         option_name: &str,
-        sub_option_str: &str,
+        sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
         if option_name == Self::FILE_SYSTEM_FILE_NAME {
             Self::parse_none(&Self::split(sub_option_str))?;
@@ -921,7 +922,7 @@ impl Scanner {
         let category = self.parse_category(capture.name("Category").unwrap().as_str())?;
         let option_name = capture.name("OptionName").unwrap().as_str();
         let column_name = capture.name("ColumnName").unwrap().as_str();
-        let sub_option_str = capture.name("SubOption").map_or("", |s| s.as_str());
+        let sub_option_str = capture.name("SubOption").map(|s| s.as_str());
         let option: FakeOption = match category {
             Category::Fixed => self.parse_fixed(option_name, sub_option_str)?,
             Category::Select => self.parse_select(option_name, sub_option_str)?,

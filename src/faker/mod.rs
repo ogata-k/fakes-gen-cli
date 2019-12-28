@@ -4,7 +4,7 @@ pub mod category;
 pub mod fake_options;
 pub mod locale;
 
-use crate::helper::{split, string_formatted, trim_double_quoted};
+use crate::helper::split;
 
 use crate::faker::each_locale::Generator;
 use crate::faker::fake_options::FakeOption;
@@ -48,14 +48,18 @@ impl<R: Rng> Faker<R> {
         self.generator.gen(&mut self.rng, option)
     }
 
-    /// one record
-    pub fn gen_record(&mut self, options: &[FakeOption]) -> Vec<String> {
-        let mut record: Vec<String> = Vec::new();
-        let person_name: Option<PersonName> = if options.iter().any(|op| op.is_person_name()) {
+    fn gen_name_set(&mut self, options: &[FakeOption]) -> Option<PersonName> {
+        if options.iter().any(|op| op.is_person_name()) {
             Some(PersonName::new(&mut self.rng, &mut self.generator))
         } else {
             None
-        };
+        }
+    }
+
+    /// one record
+    pub fn gen_record(&mut self, options: &[FakeOption]) -> Vec<String> {
+        let mut record: Vec<String> = Vec::new();
+        let person_name: Option<PersonName> = self.gen_name_set(options);
 
         if person_name.is_none() {
             for option in options {
@@ -67,33 +71,27 @@ impl<R: Rng> Faker<R> {
             for option in options {
                 use FakeOption::*;
                 let dummy: String = match option {
-                    FirstName(false) => string_formatted(&person_name.first_name),
-                    FirstName(true) => string_formatted(
-                        &[
-                            person_name.first_name.to_string(),
-                            person_name.first_name_furigana.to_string(),
-                        ]
-                        .join(":"),
-                    ),
-                    FirstNameFurigana => string_formatted(&person_name.first_name_furigana),
-                    LastName(false) => string_formatted(&person_name.last_name),
-                    LastName(true) => string_formatted(
-                        &[
-                            person_name.last_name.to_string(),
-                            person_name.last_name_furigana.to_string(),
-                        ]
-                        .join(":"),
-                    ),
-                    LastNameFurigana => string_formatted(&person_name.last_name_furigana),
-                    FullName(false) => string_formatted(&person_name.full_name),
-                    FullName(true) => string_formatted(
-                        &[
-                            person_name.full_name.to_string(),
-                            person_name.full_name_furigana.to_string(),
-                        ]
-                        .join(":"),
-                    ),
-                    FullNameFurigana => string_formatted(&person_name.full_name_furigana),
+                    FirstName(false) => person_name.first_name.to_string(),
+                    FirstName(true) => [
+                        person_name.first_name.to_string(),
+                        person_name.first_name_furigana.to_string(),
+                    ]
+                    .join(":"),
+                    FirstNameFurigana => person_name.first_name_furigana.to_string(),
+                    LastName(false) => person_name.last_name.to_string(),
+                    LastName(true) => [
+                        person_name.last_name.to_string(),
+                        person_name.last_name_furigana.to_string(),
+                    ]
+                    .join(":"),
+                    LastNameFurigana => person_name.last_name_furigana.to_string(),
+                    FullName(false) => person_name.full_name.to_string(),
+                    FullName(true) => [
+                        person_name.full_name.to_string(),
+                        person_name.full_name_furigana.to_string(),
+                    ]
+                    .join(":"),
+                    FullNameFurigana => person_name.full_name_furigana.to_string(),
                     _ => self.gen(option),
                 };
                 record.push(dummy);
@@ -125,12 +123,8 @@ struct PersonName {
 
 impl PersonName {
     fn new<R: Rng>(rng: &mut R, generator: &mut Generator) -> Self {
-        let last_name: (String, String) = split(&trim_double_quoted(
-            &generator.gen(rng, &FakeOption::LastName(true)),
-        ));
-        let first_name: (String, String) = split(&trim_double_quoted(
-            &generator.gen(rng, &FakeOption::FirstName(true)),
-        ));
+        let last_name: (String, String) = split(&generator.gen(rng, &FakeOption::LastName(true)));
+        let first_name: (String, String) = split(&generator.gen(rng, &FakeOption::FirstName(true)));
         let full_name: (String, String) = (
             generator.build_name(&last_name.0, &first_name.0),
             generator.build_name(&last_name.1, &first_name.1),

@@ -13,6 +13,7 @@ use fakes_gen::faker::fake_options::FakeOption;
 use fakes_gen::faker::locale::Locale;
 use fakes_gen::faker::Faker;
 use rand::thread_rng;
+use std::io;
 
 pub struct FakerApp<'a, 'b> {
     app: App<'a, 'b>,
@@ -82,18 +83,20 @@ impl<'a, 'b> FakerApp<'a, 'b> {
         }
     }
 
-    pub fn run(self) {
+    pub fn run(self) -> io::Result<()> {
         let mut app = self.app.clone();
         let m: ArgMatches = self.app.get_matches();
         if m.is_present("usable") {
-            return Self::print_usable_options();
+            Self::print_usable_options();
+            return Ok(());
         }
         if m.is_present("bnf") {
-            return Self::print_bnf();
+            Self::print_bnf();
+            return Ok(());
         }
         if !m.is_present("option") {
             app.print_help();
-            return;
+            return Ok(());
         }
 
         let locale: Locale = match m.value_of("locale").unwrap() {
@@ -112,16 +115,15 @@ impl<'a, 'b> FakerApp<'a, 'b> {
         if size.is_err() {
             let size = size.err().unwrap();
             eprintln!("Parse Err: {}", size);
-            return;
+            return Ok(());
         }
         let size: usize = size.unwrap();
         if size == 0 {
             eprintln!("Size Error: size is 0");
-            return;
+            return Ok(());
         }
 
-        let mut header: Vec<String> = Vec::new();
-        let mut options: Vec<FakeOption> = Vec::new();
+        let mut header_options: Vec<(String, FakeOption)> = Vec::new();
         let mut errors: Vec<String> = Vec::new();
 
         if m.is_present("option") {
@@ -130,46 +132,31 @@ impl<'a, 'b> FakerApp<'a, 'b> {
                 if scan_res.is_err() {
                     errors.push(format!("Format Err: {}", scan_res.err().unwrap()));
                 } else {
-                    let (h, op) = scan_res.unwrap();
-                    header.push(h);
-                    options.push(op);
+                    header_options.push(scan_res.unwrap());
                 }
             }
             if !errors.is_empty() {
                 for error in errors {
                     eprintln!("{}", error);
                 }
-                return;
+                return Ok(());
             }
         }
 
         let mut faker = Faker::new(thread_rng(), locale);
+        let mut writer = std::io::stdout();
         if size == 1 {
             if m.is_present("fullform") {
-                print!(
-                    "{}",
-                    to_record_with_header(&header, &faker.gen_record(&options), converter).unwrap()
-                );
+                to_record_with_header(&mut writer, &mut faker, converter, &header_options)
             } else {
-                print!(
-                    "{}",
-                    to_record(&header, &faker.gen_record(&options), converter).unwrap()
-                );
+                to_record(&mut writer, &mut faker, converter, &header_options)
             }
-            return;
         } else {
             if m.is_present("fullform") {
-                print!(
-                    "{}",
-                    to_full_form(&header, &faker.gen_data_set(size, &options), converter).unwrap()
-                );
+                to_full_form(&mut writer, &mut faker, converter, &header_options, size)
             } else {
-                print!(
-                    "{}",
-                    to_data_set(&header, &faker.gen_data_set(size, &options), converter).unwrap()
-                );
+                to_data_set(&mut writer, &mut faker, converter, &header_options, size)
             }
-            return;
         }
     }
 

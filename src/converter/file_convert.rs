@@ -1,324 +1,395 @@
 use crate::converter::file_type::FileType;
 use crate::date_time_format::DEFAULT_DATE_TIME_FORMAT;
+use crate::faker::fake_options::FakeOption;
+use crate::faker::Faker;
 use chrono::Local;
-
-fn map_string_formatted(data: &[String]) -> Vec<String> {
-    data.iter().map(|d| format!("\"{}\"", d)).collect()
-}
+use rand::Rng;
+use std::io;
 
 /// one record
-pub fn to_record(header: &[String], record: &[String], file_type: FileType) -> Option<String> {
+pub fn to_record<W: io::Write, R: Rng>(
+    w: &mut W,
+    faker: &mut Faker<R>,
+    file_type: FileType,
+    header_options: &[(String, FakeOption)],
+) -> io::Result<()> {
     match file_type {
         FileType::CSV => {
-            let converter = CsvConverter::default();
-            if converter.validate(header, record).is_none() {
-                return None;
-            }
-            return Some(converter.to_record(header, record));
+            let converter = CsvConverter::new(header_options);
+            converter.to_record(w, &faker.gen_record(converter.options()))
         }
         FileType::TSV => {
-            let converter = TsvConverter::default();
-            if converter.validate(header, record).is_none() {
-                return None;
-            }
-            return Some(converter.to_record(header, record));
+            let converter = TsvConverter::new(header_options);
+            converter.to_record(w, &faker.gen_record(converter.options()))
         }
         FileType::JSON => {
-            let converter = JsonConverter::default();
-            if converter.validate(header, record).is_none() {
-                return None;
-            }
-            return Some(converter.to_record(header, record));
+            let converter = JsonConverter::new(header_options);
+            converter.to_record(w, &faker.gen_record(converter.options()))
         }
     }
 }
 
 /// one record with header
-pub fn to_record_with_header(
-    header: &[String],
-    record: &[String],
+pub fn to_record_with_header<W: io::Write, R: Rng>(
+    w: &mut W,
+    faker: &mut Faker<R>,
     file_type: FileType,
-) -> Option<String> {
+    header_options: &[(String, FakeOption)],
+) -> io::Result<()> {
     match file_type {
         FileType::CSV => {
-            let converter = CsvConverter::default();
-            if converter.validate(header, record).is_none() {
-                return None;
-            }
-            return Some(converter.to_record_with_header(header, record));
+            let converter = CsvConverter::new(header_options);
+            converter.to_record_with_header(w, &faker.gen_record(converter.options()))
         }
         FileType::TSV => {
-            let converter = TsvConverter::default();
-            if converter.validate(header, record).is_none() {
-                return None;
-            }
-            return Some(converter.to_record_with_header(header, record));
+            let converter = TsvConverter::new(header_options);
+            converter.to_record_with_header(w, &faker.gen_record(converter.options()))
         }
         FileType::JSON => {
-            let converter = JsonConverter::default();
-            if converter.validate(header, record).is_none() {
-                return None;
-            }
-            return Some(converter.to_record_with_header(header, record));
+            let converter = JsonConverter::new(header_options);
+            converter.to_record_with_header(w, &faker.gen_record(converter.options()))
         }
     }
 }
 
 /// many record
-pub fn to_data_set(
-    header: &[String],
-    data_set: &[Vec<String>],
+pub fn to_data_set<W: io::Write, R: Rng>(
+    w: &mut W,
+    faker: &mut Faker<R>,
     file_type: FileType,
-) -> Option<String> {
+    header_options: &[(String, FakeOption)],
+    count: usize,
+) -> io::Result<()> {
     match file_type {
         FileType::CSV => {
-            let converter = CsvConverter::default();
-            if !data_set
-                .iter()
-                .all(|d| converter.validate(header, &d).is_some())
-            {
-                return None;
-            }
-            return Some(converter.to_data_set(header, data_set));
+            let converter = CsvConverter::new(header_options);
+            converter.to_data_set(w, &faker.gen_data_set(count, converter.options()))
         }
         FileType::TSV => {
-            let converter = TsvConverter::default();
-            if !data_set
-                .iter()
-                .all(|d| converter.validate(header, &d).is_some())
-            {
-                return None;
-            }
-            return Some(converter.to_data_set(header, data_set));
+            let converter = TsvConverter::new(header_options);
+            converter.to_data_set(w, &faker.gen_data_set(count, converter.options()))
         }
         FileType::JSON => {
-            let converter = JsonConverter::default();
-            if !data_set
-                .iter()
-                .all(|d| converter.validate(header, &d).is_some())
-            {
-                return None;
-            }
-            return Some(converter.to_data_set(header, data_set));
+            let converter = JsonConverter::new(header_options);
+            converter.to_data_set(w, &faker.gen_data_set(count, converter.options()))
         }
     }
 }
 
 /// full formed many record
-pub fn to_full_form(
-    header: &[String],
-    data_set: &[Vec<String>],
+pub fn to_full_form<W: io::Write, R: Rng>(
+    w: &mut W,
+    faker: &mut Faker<R>,
     file_type: FileType,
-) -> Option<String> {
+    header_options: &[(String, FakeOption)],
+    count: usize,
+) -> io::Result<()> {
     match file_type {
         FileType::CSV => {
-            let converter = CsvConverter::default();
-            if !data_set
-                .iter()
-                .all(|d| converter.validate(header, &d).is_some())
-            {
-                return None;
-            }
-            return Some(converter.to_full_form(header, data_set));
+            let converter = CsvConverter::new(header_options);
+            converter.to_full_form(w, &faker.gen_data_set(count, converter.options()))
         }
         FileType::TSV => {
-            let converter = TsvConverter::default();
-            if !data_set
-                .iter()
-                .all(|d| converter.validate(header, &d).is_some())
-            {
-                return None;
-            }
-            return Some(converter.to_full_form(header, data_set));
+            let converter = TsvConverter::new(header_options);
+            converter.to_full_form(w, &faker.gen_data_set(count, converter.options()))
         }
         FileType::JSON => {
-            let converter = JsonConverter::default();
-            if !data_set
-                .iter()
-                .all(|d| converter.validate(header, &d).is_some())
-            {
-                return None;
-            }
-            return Some(converter.to_full_form(header, data_set));
+            let converter = JsonConverter::new(header_options);
+            converter.to_full_form(w, &faker.gen_data_set(count, converter.options()))
         }
     }
+}
+
+fn split_options(header_options: &[(String, FakeOption)]) -> (Vec<String>, Vec<FakeOption>) {
+    let mut header: Vec<String> = Vec::new();
+    let mut options: Vec<FakeOption> = Vec::new();
+
+    for (h, opt) in header_options {
+        header.push(h.clone());
+        options.push(opt.clone());
+    }
+
+    return (header, options);
 }
 
 /// Converter
-trait Converter: Default {
-    // assertion
-    fn validate(&self, header: &[String], record: &[String]) -> Option<()>;
+trait Converter {
+    // create
+    fn new(header_options: &[(String, FakeOption)]) -> Self;
+
+    fn header(&self) -> &Vec<String>;
+
+    fn options(&self) -> &Vec<FakeOption>;
+
+    // formatter
+    fn formatted_header(&self) -> Vec<String> {
+        self.header().iter().map(|h| format!("\"{}\"", h)).collect()
+    }
+
+    fn formatted_record(&self, record: &[String]) -> Vec<String> {
+        record
+            .iter()
+            .zip(self.options())
+            .map(|(rec, opt)| opt.with_format(rec))
+            .collect()
+    }
 
     // do not assertion
-    fn to_record(&self, header: &[String], record: &[String]) -> String;
-    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String;
-    fn to_data_set(&self, header: &[String], data_set: &[Vec<String>]) -> String;
-    fn to_full_form(&self, header: &[String], data_set: &[Vec<String>]) -> String;
+    /// write a record with flush
+    fn to_header<W: io::Write>(&self, w: &mut W) -> io::Result<()>;
+
+    /// write a record with flush
+    fn to_record<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()>;
+
+    fn to_record_with_header<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()>;
+
+    fn to_data_set<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()>;
+
+    fn to_full_form<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()>;
 }
 
-#[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
-struct CsvConverter {}
+#[derive(Debug, Eq, PartialEq, Clone)]
+struct CsvConverter {
+    header: Vec<String>,
+    options: Vec<FakeOption>,
+}
 
 impl Converter for CsvConverter {
-    fn validate(&self, header: &[String], record: &[String]) -> Option<()> {
-        if header.len() == record.len() {
-            Some(())
-        } else {
-            None
+    fn new(header_options: &[(String, FakeOption)]) -> Self {
+        let (header, options): (Vec<String>, Vec<FakeOption>) = split_options(header_options);
+        CsvConverter { header, options }
+    }
+
+    fn header(&self) -> &Vec<String> {
+        &self.header
+    }
+
+    fn options(&self) -> &Vec<FakeOption> {
+        &self.options
+    }
+
+    /// write a record with flush
+    fn to_header<W: io::Write>(&self, w: &mut W) -> io::Result<()> {
+        write!(w, "{}", self.formatted_header().join(","))?;
+        w.flush()
+    }
+
+    /// write a record with flush
+    fn to_record<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()> {
+        write!(w, "{}", self.formatted_record(&record).join(","))?;
+        w.flush()
+    }
+
+    fn to_record_with_header<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()> {
+        self.to_header(w)?;
+        write!(w, "\n")?;
+        self.to_record(w, record)?;
+        Ok(())
+    }
+
+    fn to_data_set<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()> {
+        if data_set.is_empty() {
+            return Ok(());
         }
-    }
-
-    fn to_record(&self, _header: &[String], record: &[String]) -> String {
-        record.join(",")
-    }
-
-    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String {
-        let mut lines: Vec<String> = Vec::new();
-        lines.push(self.to_record(header, &map_string_formatted(header)));
-        lines.push(self.to_record(header, record));
-        return lines.join("\n");
-    }
-
-    fn to_data_set(&self, _header: &[String], data_set: &[Vec<String>]) -> String {
-        let mut lines: Vec<String> = Vec::new();
-        for data in data_set {
-            lines.push(self.to_record(_header, data));
+        if let Some((fst, snd)) = data_set.split_first() {
+            self.to_record(w, fst)?;
+            for record in snd {
+                write!(w, "\n")?;
+                self.to_record(w, record)?;
+            }
         }
-        return lines.join("\n");
+        Ok(())
     }
 
-    fn to_full_form(&self, header: &[String], data_set: &[Vec<String>]) -> String {
-        let mut lines: Vec<String> = Vec::new();
-        lines.push(self.to_record(header, &map_string_formatted(header)));
-        for data in data_set {
-            lines.push(self.to_record(header, data));
+    fn to_full_form<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()> {
+        self.to_header(w)?;
+        for record in data_set {
+            write!(w, "\n")?;
+            self.to_record(w, record)?;
         }
-        return lines.join("\n");
+        Ok(())
     }
 }
 
-#[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
-struct TsvConverter {}
+#[derive(Debug, Eq, PartialEq, Clone)]
+struct TsvConverter {
+    header: Vec<String>,
+    options: Vec<FakeOption>,
+}
 
 impl Converter for TsvConverter {
-    fn validate(&self, header: &[String], record: &[String]) -> Option<()> {
-        if header.len() == record.len() {
-            Some(())
-        } else {
-            None
+    fn new(header_options: &[(String, FakeOption)]) -> Self {
+        let (header, options): (Vec<String>, Vec<FakeOption>) = split_options(header_options);
+        TsvConverter { header, options }
+    }
+
+    fn header(&self) -> &Vec<String> {
+        &self.header
+    }
+
+    fn options(&self) -> &Vec<FakeOption> {
+        &self.options
+    }
+
+    /// write a record with flush
+    fn to_header<W: io::Write>(&self, w: &mut W) -> io::Result<()> {
+        write!(w, "{}", self.formatted_header().join("\t"))?;
+        w.flush()
+    }
+
+    /// write a record with flush
+    fn to_record<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()> {
+        write!(w, "{}", self.formatted_record(&record).join("\t"))?;
+        w.flush()
+    }
+
+    fn to_record_with_header<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()> {
+        self.to_header(w)?;
+        write!(w, "\n")?;
+        self.to_record(w, record)?;
+        Ok(())
+    }
+
+    fn to_data_set<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()> {
+        if data_set.is_empty() {
+            return Ok(());
         }
-    }
-
-    fn to_record(&self, _header: &[String], record: &[String]) -> String {
-        record.join("\t")
-    }
-
-    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String {
-        let mut lines: Vec<String> = Vec::new();
-        lines.push(self.to_record(header, &map_string_formatted(header)));
-        lines.push(self.to_record(header, record));
-        return lines.join("\n");
-    }
-
-    fn to_data_set(&self, _header: &[String], data_set: &[Vec<String>]) -> String {
-        let mut lines: Vec<String> = Vec::new();
-        for data in data_set {
-            lines.push(self.to_record(_header, data));
+        if let Some((fst, snd)) = data_set.split_first() {
+            self.to_record(w, fst)?;
+            for record in snd {
+                write!(w, "\n")?;
+                self.to_record(w, record)?;
+            }
         }
-        return lines.join("\n");
+        Ok(())
     }
 
-    fn to_full_form(&self, header: &[String], data_set: &[Vec<String>]) -> String {
-        let mut lines: Vec<String> = Vec::new();
-        lines.push(self.to_record(header, &map_string_formatted(header)));
-        for data in data_set {
-            lines.push(self.to_record(header, data));
+    fn to_full_form<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()> {
+        self.to_header(w)?;
+        for record in data_set {
+            write!(w, "\n")?;
+            self.to_record(w, record)?;
         }
-        return lines.join("\n");
+        Ok(())
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 struct JsonConverter {
-    indent: u8,
-    indent_space_count: u8,
+    indent_count: usize,
+    one_indent: &'static str,
+    header: Vec<String>,
+    options: Vec<FakeOption>,
 }
 
-impl Default for JsonConverter {
-    fn default() -> Self {
+impl JsonConverter {
+    fn add_indent(&self, num: usize) -> JsonConverter {
         JsonConverter {
-            indent: 0,
-            indent_space_count: 2,
+            indent_count: self.indent_count + num,
+            one_indent: self.one_indent,
+            header: self.header().clone(),
+            options: self.options().clone(),
         }
+    }
+
+    fn get_indent(&self) -> String {
+        self.one_indent.repeat(self.indent_count)
     }
 }
 
 impl Converter for JsonConverter {
-    fn validate(&self, header: &[String], record: &[String]) -> Option<()> {
-        if header.len() == record.len() {
-            Some(())
-        } else {
-            None
+    fn new(header_options: &[(String, FakeOption)]) -> Self {
+        let (header, options) = split_options(header_options);
+        JsonConverter {
+            indent_count: 0,
+            one_indent: "  ",
+            header,
+            options,
         }
     }
-    fn to_record(&self, header: &[String], record: &[String]) -> String {
-        let one_indent: String = " ".repeat(self.indent_space_count as usize);
-        let indent: String = " ".repeat((self.indent_space_count * self.indent) as usize);
-        let mut s_vec: Vec<String> = vec![format!("{}{{", indent)];
-        let items: Vec<String> = header
+
+    fn header(&self) -> &Vec<String> {
+        &self.header
+    }
+
+    fn options(&self) -> &Vec<FakeOption> {
+        &self.options
+    }
+
+    fn formatted_header(&self) -> Vec<String> {
+        unreachable!()
+    }
+
+    fn to_header<W: io::Write>(&self, w: &mut W) -> io::Result<()> {
+        unreachable!()
+    }
+
+    /// write a record with flush
+    fn to_record<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()> {
+        let indent: String = self.get_indent();
+        write!(w, "{}{{", indent)?;
+        let record_items: Vec<String> = self
+            .header()
             .iter()
-            .zip(record)
-            .map(|(h, r)| format!("{}{}\"{}\": {}", one_indent, indent, h, r))
+            .zip(self.formatted_record(&record))
+            .map(|(h, r)| format!("{}{}\"{}\": {}", self.one_indent, indent, h, r))
             .collect();
-        s_vec.push(items.join(",\n"));
-        s_vec.push(format!("{}}}", indent));
-        return s_vec.join("\n");
-    }
-
-    fn to_record_with_header(&self, header: &[String], record: &[String]) -> String {
-        self.to_record(header, record)
-    }
-
-    fn to_data_set(&self, header: &[String], data_set: &[Vec<String>]) -> String {
-        let indent: String = " ".repeat((self.indent_space_count * self.indent) as usize);
-        let mut lines: Vec<String> = Vec::new();
-        let mut items: Vec<String> = Vec::new();
-
-        lines.push(format!("{}[", indent));
-        let indented_converter: Self = JsonConverter {
-            indent: self.indent + 1,
-            indent_space_count: self.indent_space_count,
-        };
-        for data in data_set {
-            items.push(indented_converter.to_record(header, data));
+        if let Some((head, tails)) = record_items.split_first() {
+            write!(w, "\n{}", head)?;
+            for tail in tails {
+                write!(w, ",\n{}", tail)?;
+            }
         }
-        lines.push(items.join(",\n"));
-        lines.push(format!("{}]", indent));
-        return lines.join("\n");
+        write!(w, "\n{}}}", indent)?;
+        w.flush()
     }
 
-    fn to_full_form(&self, header: &[String], data_set: &[Vec<String>]) -> String {
-        let one_indent = " ".repeat(self.indent_space_count as usize);
-        let indent: String = " ".repeat((self.indent_space_count * self.indent) as usize);
-        let mut lines: Vec<String> = vec![format!("{}{{", indent)];
-        let mut items: Vec<String> = Vec::new();
+    fn to_record_with_header<W: io::Write>(&self, w: &mut W, record: &[String]) -> io::Result<()> {
+        self.to_record(w, record)
+    }
 
-        lines.push(format!(
-            "{}{}\"{}\": [",
-            one_indent,
+    /// array for json value
+    fn to_data_set<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()> {
+        let indent: String = self.get_indent();
+
+        write!(w, "{}[", indent)?;
+        let indented_converter: JsonConverter = self.add_indent(1);
+        if let Some((head, tails)) = data_set.split_first() {
+            write!(w, "\n")?;
+            indented_converter.to_record(w, head)?;
+            for tail in tails {
+                write!(w, ",\n")?;
+                indented_converter.to_record(w, tail)?;
+            }
+            write!(w, "\n{}", indent)?;
+        }
+        write!(w, "]")?;
+        w.flush()
+    }
+
+    fn to_full_form<W: io::Write>(&self, w: &mut W, data_set: &[Vec<String>]) -> io::Result<()> {
+        let indent: String = self.get_indent();
+
+        write!(w, "{}{{", indent)?;
+        write!(
+            w,
+            "\n{}{}\"{}\": [",
+            self.one_indent,
             indent,
             Local::now().format(DEFAULT_DATE_TIME_FORMAT)
-        ));
-        let indented_converter: Self = JsonConverter {
-            indent: self.indent + 2,
-            indent_space_count: self.indent_space_count,
-        };
-        for data in data_set {
-            items.push(indented_converter.to_record(header, data));
+        )?;
+        let indented_converter: JsonConverter = self.add_indent(2);
+        if let Some((head, tails)) = data_set.split_first() {
+            write!(w, "\n")?;
+            indented_converter.to_record(w, head)?;
+            for tail in tails {
+                write!(w, ",\n")?;
+                indented_converter.to_record(w, tail)?;
+            }
+            write!(w, "\n{}{}", self.one_indent, indent)?;
         }
-        lines.push(items.join(",\n"));
-        lines.push(format!("{}{}]", one_indent, indent));
-        lines.push(format!("{}}}", indent));
-        return lines.join("\n");
+        write!(w, "]")?;
+        write!(w, "\n{}}}", indent)?;
+        w.flush()
     }
 }

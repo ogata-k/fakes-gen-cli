@@ -2,8 +2,8 @@ use crate::faker::each_locale::japan::JapanData;
 use crate::faker::fake_options::FakeOption;
 use crate::faker::locale::Locale;
 use crate::helper::{
-    gen_alpha_num_chars, gen_ascii_chars, gen_fraction_part, gen_password_chars, gen_range,
-    not_string_formatted, select, select_many, split, string_formatted,
+    gen_alpha_num_chars, gen_ascii_chars, gen_fraction_part, gen_password_chars, gen_range, select,
+    select_many, split,
 };
 
 use chrono::{Datelike, Local, NaiveDate, NaiveDateTime, NaiveTime};
@@ -41,84 +41,80 @@ trait Rand: Data {
         match option {
             // Fixed Value
             FakeOption::FixedString(s) => {
-                return string_formatted(&s);
+                return s.clone();
             }
             FakeOption::FixedNotString(s) => {
-                return not_string_formatted(&s);
+                return s.clone();
             }
 
             // Random select
             FakeOption::SelectString(user_values) => {
-                return string_formatted(select(
+                return select(
                     rng,
                     user_values
                         .iter()
                         .map(|s| s as &str)
                         .collect::<Vec<&str>>()
                         .as_slice(),
-                ));
+                )
+                .to_string();
             }
             FakeOption::SelectNotString(user_values) => {
-                return not_string_formatted(select(
+                return select(
                     rng,
                     user_values
                         .iter()
                         .map(|s| s as &str)
                         .collect::<Vec<&str>>()
                         .as_slice(),
-                ));
+                )
+                .to_string();
             }
 
             // Lorem
             FakeOption::Word => {
-                return string_formatted(select(rng, Self::WORD));
+                return select(rng, Self::WORD).to_string();
             }
             FakeOption::Words(minimum, maximum) => {
-                return string_formatted(
-                    &select_many(rng, Self::WORD, *minimum, *maximum).join(" "),
-                );
+                return select_many(rng, Self::WORD, *minimum, *maximum).join(" ");
             }
             FakeOption::Sentence => {
-                return string_formatted(select(rng, Self::SENTENCE));
+                return select(rng, Self::SENTENCE).to_string();
             }
             FakeOption::Sentences(minimum, maximum) => {
-                return string_formatted(
-                    &select_many(rng, Self::SENTENCE, *minimum, *maximum).join(" "),
-                );
+                return select_many(rng, Self::SENTENCE, *minimum, *maximum).join(" ");
             }
             FakeOption::Paragraph => {
-                return string_formatted(select(rng, Self::PARAGRAPH));
+                return select(rng, Self::PARAGRAPH).to_string();
             }
             FakeOption::Paragraphs(minimum, maximum) => {
-                return string_formatted(
-                    &select_many(rng, Self::PARAGRAPH, *minimum, *maximum).join("\n"),
-                );
+                return select_many(rng, Self::PARAGRAPH, *minimum, *maximum).join("\n");
             }
 
             // Name
             FakeOption::FirstName(use_furigana) => {
                 let target: String = select(rng, Self::FIRST_NAME).to_string();
                 return if *use_furigana {
-                    string_formatted(&target)
+                    target
                 } else {
-                    string_formatted(&split(&target).0)
+                    split(&target).0.to_string()
                 };
             }
             FakeOption::FirstNameFurigana => {
                 let (_, furigana): (String, String) = split(select(rng, Self::FIRST_NAME));
-                string_formatted(&furigana)
+                furigana
             }
             FakeOption::LastName(use_furigana) => {
                 let target: String = select(rng, Self::LAST_NAME).to_string();
                 return if *use_furigana {
-                    string_formatted(&target)
+                    target
                 } else {
-                    string_formatted(&split(&target).0)
+                    split(&target).0.to_string()
                 };
             }
             FakeOption::LastNameFurigana => {
                 let (_, furigana): (String, String) = split(select(rng, Self::LAST_NAME));
-                string_formatted(&furigana)
+                furigana
             }
             FakeOption::FullName(use_furigana) => {
                 let first: (String, String) = split(select(rng, Self::FIRST_NAME));
@@ -128,66 +124,57 @@ trait Rand: Data {
                     Self::build_name(&last.1, &first.1),
                 );
                 return if *use_furigana {
-                    string_formatted(&[name.0, name.1].join(":"))
+                    [name.0, name.1].join(":")
                 } else {
-                    string_formatted(&name.0)
+                    name.0
                 };
             }
             FakeOption::FullNameFurigana => {
                 let first: (String, String) = split(select(rng, Self::FIRST_NAME));
                 let last: (String, String) = split(select(rng, Self::LAST_NAME));
                 let furigana: String = Self::build_name(&last.1, &first.1);
-                string_formatted(&furigana)
+                furigana
             }
 
             // Primitive
             FakeOption::Integer => {
-                return not_string_formatted(&rng.gen::<i16>());
+                return format!("{}", rng.gen::<i16>());
             }
             FakeOption::IntegerRange(minimum, maximum) => {
-                return not_string_formatted(&gen_range(rng, *minimum, *maximum));
+                return format!("{}", gen_range(rng, *minimum, *maximum));
             }
             FakeOption::Float => {
                 let i: i16 = rng.gen::<i16>();
                 let d: f64 = rng.gen::<f64>();
-                return not_string_formatted(&format!("{:.2}", i as f64 + d));
+                return format!("{:.2}", i as f64 + d);
             }
             FakeOption::FloatRange(minimum, maximum) => {
                 let diff: f64 = (maximum - minimum) as f64 * gen_fraction_part(rng);
-                return not_string_formatted(&format!("{:.2}", *minimum as f64 + diff));
+                return format!("{:.2}", *minimum as f64 + diff);
             }
-            FakeOption::Ascii(minimum, maximum) => {
-                let s: String = gen_ascii_chars(rng, *minimum, *maximum);
-                return string_formatted(&s);
-            }
+            FakeOption::Ascii(minimum, maximum) => gen_ascii_chars(rng, *minimum, *maximum),
             FakeOption::Boolean => {
-                return not_string_formatted(&(rng.gen::<u8>() % 2 == 0));
+                return format!("{}", rng.gen::<u8>() % 2 == 0);
             }
 
             // Internet
             FakeOption::Email => {
                 let s: String = gen_alpha_num_chars(rng, 8, 20);
-                return string_formatted(&[&s, "example.com"].join("@"));
+                return [&s, "example.com"].join("@");
             }
-            FakeOption::UserName => {
-                let s: String = gen_alpha_num_chars(rng, 4, 15);
-                return string_formatted(&s);
-            }
-            FakeOption::Password(minimum, maximum) => {
-                let s: String = gen_password_chars(rng, *minimum, *maximum);
-                return string_formatted(&s);
-            }
-            FakeOption::CreditCard => return string_formatted(select(rng, Self::CREDIT_CARD)),
+            FakeOption::UserName => gen_alpha_num_chars(rng, 4, 15),
+            FakeOption::Password(minimum, maximum) => gen_password_chars(rng, *minimum, *maximum),
+            FakeOption::CreditCard => return select(rng, Self::CREDIT_CARD).to_string(),
             FakeOption::URL => {
                 let domain: String = select(rng, Self::URL).to_string();
                 let first: String = gen_alpha_num_chars(rng, 1, 10);
                 let second: String = gen_alpha_num_chars(rng, 1, 10);
-                return string_formatted(&format!("http://{}/{}/{}", domain, first, second));
+                return format!("http://{}/{}/{}", domain, first, second);
             }
             FakeOption::IPv4 => {
                 let d: u8 = rng.gen();
                 let (a, b, c): &(u8, u8, u8) = select(rng, Self::IPV4);
-                return string_formatted(&Ipv4Addr::new(*a, *b, *c, d).to_string());
+                return Ipv4Addr::new(*a, *b, *c, d).to_string();
             }
             FakeOption::IPv6 => {
                 let c: u16 = rng.gen();
@@ -196,84 +183,82 @@ trait Rand: Data {
                 let f: u16 = rng.gen();
                 let g: u16 = rng.gen();
                 let h: u16 = rng.gen();
-                return string_formatted(
-                    &Ipv6Addr::new(2001_u16, 0xdb8, c, d, e, f, g, h).to_string(),
-                );
+                return Ipv6Addr::new(2001_u16, 0xdb8, c, d, e, f, g, h).to_string();
             }
             FakeOption::RGB => {
                 let r: u8 = rng.gen();
                 let g: u8 = rng.gen();
                 let b: u8 = rng.gen();
-                return string_formatted(&format!("#{:>02X}{:>02X}{:>02X}", r, g, b));
+                return format!("#{:>02X}{:>02X}{:>02X}", r, g, b);
             }
             FakeOption::RGBA => {
                 let r: u8 = rng.gen();
                 let g: u8 = rng.gen();
                 let b: u8 = rng.gen();
                 let a: u8 = rng.gen();
-                return string_formatted(&format!("#{:>02X}{:>02X}{:>02X}{:>02X}", r, g, b, a));
+                return format!("#{:>02X}{:>02X}{:>02X}{:>02X}", r, g, b, a);
             }
             FakeOption::UserAgent => {
-                return string_formatted(select(rng, Self::USER_AGENT));
+                return select(rng, Self::USER_AGENT).to_string();
             }
             FakeOption::StatusCode => {
-                return string_formatted(select(rng, Self::HTTP_STATUS_CODE));
+                return format!("{}", select(rng, Self::HTTP_STATUS_CODE));
             }
 
             // Company
             FakeOption::CompanySuffix => {
-                return string_formatted(select(rng, Self::COMPANY_SUFFIX));
+                return select(rng, Self::COMPANY_SUFFIX).to_string();
             }
             FakeOption::CompanyName => {
                 let name: String = select(rng, Self::COMPANY_NAME).to_string();
                 let suffix: String = select(rng, Self::COMPANY_SUFFIX).to_string();
-                return string_formatted(&[name, suffix].join(""));
+                return [name, suffix].join("");
             }
             FakeOption::Industry => {
-                return string_formatted(select(rng, Self::INDUSTRY));
+                return select(rng, Self::INDUSTRY).to_string();
             }
 
             // Address
             FakeOption::Building => {
-                return string_formatted(select(rng, Self::BUILDING));
+                return select(rng, Self::BUILDING).to_string();
             }
             FakeOption::StreetName => {
-                return string_formatted(select(rng, Self::STREET_NAME));
+                return select(rng, Self::STREET_NAME).to_string();
             }
             FakeOption::CityName => {
-                return string_formatted(select(rng, Self::CITY_NAME));
+                return select(rng, Self::CITY_NAME).to_string();
             }
             FakeOption::StateName => {
-                return string_formatted(select(rng, Self::STATE_NAME));
+                return select(rng, Self::STATE_NAME).to_string();
             }
             FakeOption::CountryName => {
-                return string_formatted(select(rng, Self::COUNTRY_NAME));
+                return select(rng, Self::COUNTRY_NAME).to_string();
             }
             FakeOption::CountryCode => {
-                return string_formatted(select(rng, Self::COUNTRY_CODE));
+                return select(rng, Self::COUNTRY_CODE).to_string();
             }
             FakeOption::TimeZone => {
-                return string_formatted(select(rng, Self::TIME_ZONE));
+                return select(rng, Self::TIME_ZONE).to_string();
             }
             FakeOption::Address => {
                 let street: String = select(rng, Self::STREET_NAME).to_string();
                 let city: String = select(rng, Self::CITY_NAME).to_string();
                 let state: String = select(rng, Self::STATE_NAME).to_string();
-                return string_formatted(&Self::build_address(&street, &city, &state));
+                return Self::build_address(&street, &city, &state);
             }
             FakeOption::ZipCode(hyphen) => {
-                return string_formatted(&Self::gen_zip_code(rng, *hyphen));
+                return Self::gen_zip_code(rng, *hyphen);
             }
             FakeOption::DomesticPhoneNumber(hyphen) => {
-                return string_formatted(&Self::gen_domestic_phone_number(rng, *hyphen));
+                return Self::gen_domestic_phone_number(rng, *hyphen);
             }
             FakeOption::Latitude => {
                 let diff: f64 = 180 as f64 * gen_fraction_part(rng);
-                return not_string_formatted(&format!("{:<+010.6}", -90 as f64 + diff));
+                return format!("{:<+010.6}", -90 as f64 + diff);
             }
             FakeOption::Longitude => {
                 let diff: f64 = 360 as f64 * gen_fraction_part(rng);
-                return not_string_formatted(&format!("{:<+011.6}", -90 as f64 + diff));
+                return format!("{:<+011.6}", -90 as f64 + diff);
             }
 
             // DateTime
@@ -282,7 +267,7 @@ trait Rand: Data {
                 let minute: u32 = gen_range(rng, 0, 59);
                 let second: u32 = gen_range(rng, 0, 59);
                 let time: NaiveTime = NaiveTime::from_hms(hour, minute, second);
-                return string_formatted(&time.format(&format));
+                return time.format(&format).to_string();
             }
             FakeOption::Date(format) => {
                 let now_year: i32 = Local::today().year();
@@ -293,7 +278,7 @@ trait Rand: Data {
                 while date.is_none() {
                     date = NaiveDate::from_ymd_opt(year, month, gen_range(rng, 1, 31));
                 }
-                return string_formatted(&date.unwrap().format(&format));
+                return date.unwrap().format(&format).to_string();
             }
             FakeOption::DateTime(format) => {
                 let now_year: i32 = Local::today().year();
@@ -309,17 +294,17 @@ trait Rand: Data {
                 let second: u32 = gen_range(rng, 0, 59);
                 let time: NaiveTime = NaiveTime::from_hms(hour, minute, second);
                 let date_time: NaiveDateTime = NaiveDateTime::new(date.unwrap(), time);
-                return string_formatted(&date_time.format(&format));
+                return date_time.format(&format).to_string();
             }
 
             // FileSystem
             FakeOption::FileName => {
                 let filename: String = gen_alpha_num_chars(rng, 3, 15);
                 let ext: String = select(rng, Self::EXTENSION).to_string();
-                return string_formatted(&[filename, ext].join("."));
+                return [filename, ext].join(".");
             }
             FakeOption::Extension => {
-                return string_formatted(&select(rng, Self::EXTENSION).to_string());
+                return select(rng, Self::EXTENSION).to_string();
             }
         }
     }

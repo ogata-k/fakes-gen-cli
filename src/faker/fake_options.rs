@@ -1,7 +1,8 @@
 use crate::date_time_format::{DEFAULT_DATE_FORMAT, DEFAULT_DATE_TIME_FORMAT, DEFAULT_TIME_FORMAT};
 use crate::faker::category::Category;
+use crate::helper::{not_string_formatted, string_formatted};
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 pub enum FakeOption {
     // Fixed Value
     FixedString(String),
@@ -63,8 +64,10 @@ pub enum FakeOption {
     CountryName,
     TimeZone,
     Address,
-    ZipCode(bool),             // use hyphen?
-    DomesticPhoneNumber(bool), // use hyphen?
+    ZipCode(bool),
+    // use hyphen?
+    DomesticPhoneNumber(bool),
+    // use hyphen?
     Latitude,
     Longitude,
 
@@ -284,60 +287,34 @@ impl FakeOption {
         ]
     }
 
-    fn is_first_name(&self) -> bool {
-        if let FakeOption::FirstName(_) = self {
-            true
-        } else {
-            false
+    fn is_string_type(&self) -> bool {
+        use FakeOption::*;
+        match self {
+            FixedNotString(_)
+            | SelectNotString(_)
+            | Integer
+            | IntegerRange(_, _)
+            | Float
+            | FloatRange(_, _)
+            | Boolean => false,
+            _ => true,
         }
     }
 
-    fn is_first_name_furigana(&self) -> bool {
-        if let FakeOption::FirstNameFurigana = self {
-            true
+    pub fn with_format(&self, data: &str) -> String {
+        if self.is_string_type() {
+            string_formatted(data)
         } else {
-            false
-        }
-    }
-
-    fn is_last_name(&self) -> bool {
-        if let FakeOption::LastName(_) = self {
-            true
-        } else {
-            false
-        }
-    }
-
-    fn is_last_name_furigana(&self) -> bool {
-        if let FakeOption::LastNameFurigana = self {
-            true
-        } else {
-            false
-        }
-    }
-
-    fn is_full_name(&self) -> bool {
-        if let FakeOption::FullName(_) = self {
-            true
-        } else {
-            false
-        }
-    }
-
-    fn is_full_name_furigana(&self) -> bool {
-        if let FakeOption::FullNameFurigana = self {
-            true
-        } else {
-            false
+            not_string_formatted(data)
         }
     }
 
     pub fn is_person_name(&self) -> bool {
-        self.is_first_name()
-            || self.is_first_name_furigana()
-            || self.is_last_name()
-            || self.is_last_name_furigana()
-            || self.is_full_name()
-            || self.is_full_name_furigana()
+        use FakeOption::*;
+        match self {
+            FirstName(_) | FirstNameFurigana | LastName(_) | LastNameFurigana | FullName(_)
+            | FullNameFurigana => true,
+            _ => false,
+        }
     }
 }
