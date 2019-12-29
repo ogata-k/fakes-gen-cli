@@ -566,39 +566,40 @@ impl Scanner {
     // combination parser
     // ---
     fn parse_category(&self, target: &str) -> Result<Category, ScannerError> {
-        let target_string = target.to_string();
-        // TODO with category
-        if target_string == Category::Fixed.to_string() {
+        if target == &Category::With.to_string() {
+            return Ok(Category::With);
+        }
+        if target == &Category::Fixed.to_string() {
             return Ok(Category::Fixed);
         }
-        if target_string == Category::Select.to_string() {
+        if target == &Category::Select.to_string() {
             return Ok(Category::Select);
         }
-        if target_string == Category::Lorem.to_string() {
+        if target == &Category::Lorem.to_string() {
             return Ok(Category::Lorem);
         }
-        if target_string == Category::Name.to_string() {
+        if target == &Category::Name.to_string() {
             return Ok(Category::Name);
         }
-        if target_string == Category::Primitive.to_string() {
+        if target == &Category::Primitive.to_string() {
             return Ok(Category::Primitive);
         }
-        if target_string == Category::Internet.to_string() {
+        if target == &Category::Internet.to_string() {
             return Ok(Category::Internet);
         }
-        if target_string == Category::Company.to_string() {
+        if target == &Category::Company.to_string() {
             return Ok(Category::Company);
         }
-        if target_string == Category::Address.to_string() {
+        if target == &Category::Address.to_string() {
             return Ok(Category::Address);
         }
-        if target_string == Category::DateTime.to_string() {
+        if target == &Category::DateTime.to_string() {
             return Ok(Category::DateTime);
         }
-        if target_string == Category::FileSystem.to_string() {
+        if target == &Category::FileSystem.to_string() {
             return Ok(Category::FileSystem);
         }
-        return Err(ScannerError::UnknownCategory(target_string));
+        return Err(ScannerError::UnknownCategory(target.to_string()));
     }
 
     fn parse_with(
@@ -1060,7 +1061,7 @@ impl Display for ScannerError {
             }
             UnknownOption(s, c) => {
                 writeln!(f, "Unknown Option is \"{}\"", s);
-                writeln!(f, "Usable Option's format is {}", Scanner::NORMAL_OPTION_FORMAT);
+                writeln!(f, "Usable Option's format is ({})|({})", Scanner::NORMAL_OPTION_FORMAT, Scanner::WITH_JOIN_OPTION_FORMAT);
                 write!(
                     f,
                     "And usable Option is {}",
