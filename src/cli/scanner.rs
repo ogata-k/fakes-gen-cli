@@ -85,11 +85,7 @@ impl Scanner {
 
     pub fn readable_with_options() -> Vec<String> {
         let mut stack: Vec<String> = Vec::new();
-        stack.push(Self::option_format(
-            Category::With,
-            Self::JOIN,
-            unimplemented!()
-        ));
+        stack.push(Self::WITH_JOIN_OPTION_FORMAT.to_string());
         return stack;
     }
 
@@ -353,6 +349,9 @@ impl Scanner {
 
     // variable
     const OPTION_VAR: &'static str = "<option>";
+    const NORMAL_OPTION_VAR: &'static str = "<normal_option>";
+    const SPECIAL_OPTION_VAR: &'static str = "<special_option>";
+    const WITH_JOIN_OPTION_VAR: &'static str = "<with_join_option>";
     const CATEGORY_VAR: &'static str = "<category>";
     const OPTION_NAME_VAR: &'static str = "<option_name>";
     const COLUMN_NAME_VAR: &'static str = "<column_name>";
@@ -364,11 +363,18 @@ impl Scanner {
     const UNSIGNED_INTEGER_VAR: &'static str = "<unsigned_integer>";
     const BOOL_VAR: &'static str = "<bool>";
     const FORMAT_STRING_VAR: &'static str = "<format_string>";
-    // TODO 名前なしと繰り返しオプション
+    const OPTION_WITHOUT_COLUMN_NAME_VAR: &'static str = "<option_without_column_name>";
+    const REPEAT_OPTION_VAR: &'static str = "<repeatable_option>";
 
     // value
-    const OPTION_FORMAT: &'static str =
+    const OPTION_FORMAT: &'static str = "<normal_option>|<special_option>";
+    const NORMAL_OPTION_FORMAT: &'static str =
         "<category>\\.<option_name>\\(<column_name>(#<sub_option>)?\\)";
+    const SPECIAL_OPTION_FORMAT: &'static str = "<with_join_option>";
+    const WITH_JOIN_OPTION_FORMAT: &'static str = "With\\.Join\\(<column_name>(#<repeatable_option>)*\\)";
+    const REPEAT_OPTION_FORMAT: &'static str = "<unsigned_integer>(#<unsigned_integer>)?#<option_without_column_name>";
+    const OPTION_WITHOUT_COLUMN_NAME_FORMAT: &'static str =
+        "<category>\\.<option_name>\\((<sub_option>)?\\)";
     const CATEGORY_FORMAT: &'static str = "[A-Z][0-9a-zA-Z]*";
     const OPTION_NAME_FORMAT: &'static str = "[A-Z][0-9a-zA-Z]*";
     const SUB_OPTION_FORMAT: &'static str =
@@ -379,10 +385,21 @@ impl Scanner {
     const SIGNED_INTEGER_RANGE_FORMAT: &'static str = "-?<unsigned_integer>#-?<unsigned_integer>";
     const UNSIGNED_INTEGER_FORMAT: &'static str = "[0-9][1-9]*";
     const BOOL_FORMAT: &'static str = "(true)|(false)";
-    // TODO 名前なしオプションとその繰り返しオプション
 
     // format pair
     const OPTION: (&'static str, &'static str) = (Scanner::OPTION_VAR, Scanner::OPTION_FORMAT);
+    const NORMAL_OPTION: (&'static str, &'static str) = (Scanner::NORMAL_OPTION_VAR, Scanner::NORMAL_OPTION_FORMAT);
+    const SPECIAL_OPTION: (&'static str, &'static str) = (Scanner::SPECIAL_OPTION_VAR, Scanner::SPECIAL_OPTION_FORMAT);
+    const WITH_JOIN_OPTION: (&'static str, &'static str) = (Scanner::WITH_JOIN_OPTION_VAR, Scanner::WITH_JOIN_OPTION_FORMAT);
+
+    const REPEAT_OPTION: (&'static str, &'static str) = (
+        Scanner::REPEAT_OPTION_VAR,
+        Scanner::REPEAT_OPTION_FORMAT
+    );
+    const OPTION_WITHOUT_COLUMN_NAME: (&'static str, &'static str) = (
+        Scanner::OPTION_WITHOUT_COLUMN_NAME_VAR,
+        Scanner::OPTION_WITHOUT_COLUMN_NAME_FORMAT
+    );
     const CATEGORY: (&'static str, &'static str) =
         (Scanner::CATEGORY_VAR, Scanner::CATEGORY_FORMAT);
     const OPTION_NAME: (&'static str, &'static str) =
@@ -407,12 +424,18 @@ impl Scanner {
         Scanner::UNSIGNED_INTEGER_FORMAT,
     );
     const BOOL: (&'static str, &'static str) = (Scanner::BOOL_VAR, Scanner::BOOL_FORMAT);
-    const FORMAT_STRING: (&'static str, &'static str) =
-        (Scanner::FORMAT_STRING_VAR, Scanner::STRING_VAR);
+    const FORMAT_STRING: (&'static str, &'static str) = (
+        Scanner::FORMAT_STRING_VAR, Scanner::STRING_VAR
+    );
 
     fn all_format_pair() -> Vec<(&'static str, &'static str)> {
         [
             Self::OPTION,
+            Self::NORMAL_OPTION,
+            Self::SPECIAL_OPTION,
+            Self::WITH_JOIN_OPTION,
+            Self::REPEAT_OPTION,
+            Self::OPTION_WITHOUT_COLUMN_NAME,
             Self::CATEGORY,
             Self::OPTION_NAME,
             Self::COLUMN_NAME,
@@ -544,6 +567,7 @@ impl Scanner {
     // ---
     fn parse_category(&self, target: &str) -> Result<Category, ScannerError> {
         let target_string = target.to_string();
+        // TODO with category
         if target_string == Category::Fixed.to_string() {
             return Ok(Category::Fixed);
         }
@@ -1014,7 +1038,7 @@ impl Display for ScannerError {
             }
             UnknownOption(s, c) => {
                 writeln!(f, "Unknown Option is \"{}\"", s);
-                writeln!(f, "Usable Option's format is {}", Scanner::OPTION_FORMAT);
+                writeln!(f, "Usable Option's format is {}", Scanner::NORMAL_OPTION_FORMAT);
                 write!(
                     f,
                     "And usable Option is {}",
