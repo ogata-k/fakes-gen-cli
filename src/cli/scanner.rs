@@ -601,6 +601,28 @@ impl Scanner {
         return Err(ScannerError::UnknownCategory(target_string));
     }
 
+    fn parse_with(
+        &self,
+        option_name: &str,
+        sub_option_str: Option<&str>,
+    ) -> Result<FakeOption, ScannerError> {
+        // TODO parse
+        if option_name == Self::FIXED_STRING {
+            return Ok(FakeOption::FixedString(Self::parse_string(&Self::split(
+                sub_option_str,
+            ))?));
+        }
+        if option_name == Self::FIXED_NOT_STRING {
+            return Ok(FakeOption::FixedNotString(Self::parse_string(
+                &Self::split(sub_option_str),
+            )?));
+        }
+        return Err(ScannerError::UnknownOption(
+            option_name.to_string(),
+            Category::Fixed,
+        ));
+    }
+
     fn parse_fixed(
         &self,
         option_name: &str,
@@ -951,7 +973,7 @@ impl Scanner {
     }
 
     pub fn scan(&self) -> Result<(String, FakeOption), ScannerError> {
-        let regex: Regex = Regex::new(r"^(?P<Category>[A-Z][[:alnum:]]*?)\.(?P<OptionName>[A-Z][[:alnum:]]*?)\((?P<ColumnName>.+?)(?:#(?P<SubOption>.*?))?\)$").unwrap();
+        let regex: Regex = Regex::new(r"^(?P<Category>[A-Z][[:alnum:]]*?)\.(?P<OptionName>[A-Z][[:alnum:]]*?)\((?P<ColumnName>.*?)(?:#(?P<SubOption>.*?))?\)$").unwrap();
         let capture = regex.captures(&self.input);
         if capture.is_none() {
             return Err(ScannerError::UnknownOptionFormat(self.input.to_string()));
@@ -962,7 +984,7 @@ impl Scanner {
         let column_name = capture.name("ColumnName").unwrap().as_str();
         let sub_option_str = capture.name("SubOption").map(|s| s.as_str());
         let option: FakeOption = match category {
-            Category:: With => unimplemented!(),
+            Category::With => self.parse_with(option_name, sub_option_str)?,
             Category::Fixed => self.parse_fixed(option_name, sub_option_str)?,
             Category::Select => self.parse_select(option_name, sub_option_str)?,
             Category::Lorem => self.parse_lorem(option_name, sub_option_str)?,
