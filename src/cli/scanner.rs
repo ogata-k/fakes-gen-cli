@@ -17,6 +17,7 @@ pub struct Scanner {
 
 impl Scanner {
     // option name
+    const JOIN: &'static str = "Join";
     const FIXED_STRING: &'static str = "String";
     const FIXED_NOT_STRING: &'static str = "NotString";
     const SELECT_STRING: &'static str = "String";
@@ -68,6 +69,7 @@ impl Scanner {
     pub fn readable_options(category: Category) -> Vec<String> {
         use Category::*;
         match category {
+            With => Self::readable_with_options(),
             Fixed => Self::readable_fixed_options(),
             Select => Self::readable_select_options(),
             Lorem => Self::readable_lorem_options(),
@@ -79,6 +81,16 @@ impl Scanner {
             DateTime => Self::readable_datetime_options(),
             FileSystem => Self::readable_filesystem_options(),
         }
+    }
+
+    pub fn readable_with_options() -> Vec<String> {
+        let mut stack: Vec<String> = Vec::new();
+        stack.push(Self::option_format(
+            Category::With,
+            Self::JOIN,
+            unimplemented!()
+        ));
+        return stack;
     }
 
     pub fn readable_fixed_options() -> Vec<String> {
@@ -352,6 +364,7 @@ impl Scanner {
     const UNSIGNED_INTEGER_VAR: &'static str = "<unsigned_integer>";
     const BOOL_VAR: &'static str = "<bool>";
     const FORMAT_STRING_VAR: &'static str = "<format_string>";
+    // TODO 名前なしと繰り返しオプション
 
     // value
     const OPTION_FORMAT: &'static str =
@@ -366,6 +379,7 @@ impl Scanner {
     const SIGNED_INTEGER_RANGE_FORMAT: &'static str = "-?<unsigned_integer>#-?<unsigned_integer>";
     const UNSIGNED_INTEGER_FORMAT: &'static str = "[0-9][1-9]*";
     const BOOL_FORMAT: &'static str = "(true)|(false)";
+    // TODO 名前なしオプションとその繰り返しオプション
 
     // format pair
     const OPTION: (&'static str, &'static str) = (Scanner::OPTION_VAR, Scanner::OPTION_FORMAT);
@@ -924,6 +938,7 @@ impl Scanner {
         let column_name = capture.name("ColumnName").unwrap().as_str();
         let sub_option_str = capture.name("SubOption").map(|s| s.as_str());
         let option: FakeOption = match category {
+            Category:: With => unimplemented!(),
             Category::Fixed => self.parse_fixed(option_name, sub_option_str)?,
             Category::Select => self.parse_select(option_name, sub_option_str)?,
             Category::Lorem => self.parse_lorem(option_name, sub_option_str)?,

@@ -4,6 +4,9 @@ use crate::helper::{not_string_formatted, string_formatted};
 
 #[derive(Eq, PartialEq, Debug, Clone)]
 pub enum FakeOption {
+    // with other FakeOptions
+    Join(String, Vec<Box<FakeOption>>),
+
     // Fixed Value
     FixedString(String),
     FixedNotString(String),
@@ -92,6 +95,8 @@ impl std::fmt::Display for FakeOption {
         use FakeOption::*;
         let cat: Category = self.category();
         let s: String = match self {
+            Join(separator , data) =>
+                format!("{}.Join(separator: \"{}\", data: \"{}\")", cat, separator, data.iter().map(|d| d.to_string()).collect::<Vec<String>>().join(", ")),
             FixedString(s) => format!("{}.String(target: \"{}\")", cat, s),
             FixedNotString(s) => format!("{}.NotString(target: \"{}\")", cat, s),
             SelectString(list) => format!("{}.SelectString(list: {:?})", cat, list),
@@ -157,6 +162,7 @@ impl FakeOption {
     pub fn category(&self) -> Category {
         use FakeOption::*;
         match self {
+            Join(_, _) => Category::With,
             FixedString(_) | FixedNotString(_) => Category::Fixed,
             SelectString(_) | SelectNotString(_) => Category::Select,
             Word | Words(_, _) | Sentence | Sentences(_, _) | Paragraph | Paragraphs(_, _) => {
@@ -194,97 +200,6 @@ impl FakeOption {
             Time(_) | Date(_) | DateTime(_) => Category::DateTime,
             FileName | Extension => Category::FileSystem,
         }
-    }
-
-    pub fn example_all_options() -> Vec<Self> {
-        use FakeOption::*;
-        vec![
-            // Fixed
-            FixedString("Dummy String".to_string()),
-            FixedNotString("Dummy not String".to_string()),
-            // Select
-            SelectString(vec![
-                "str1".to_string(),
-                "str2".to_string(),
-                "str3".to_string(),
-            ]),
-            SelectNotString(vec![
-                "not-str1".to_string(),
-                "not-str2".to_string(),
-                "not-str3".to_string(),
-            ]),
-            // Lorem
-            Word,
-            Words(3, 10),
-            Sentence,
-            Sentences(3, 10),
-            Paragraph,
-            Paragraphs(3, 10),
-            // Name(use furigana)
-            // generate "name":"furigana"
-            FirstName(true),
-            FirstName(false),
-            FirstNameFurigana,
-            LastName(true),
-            LastName(false),
-            LastNameFurigana,
-            FullName(true),
-            FullName(false),
-            FullNameFurigana,
-            // Primitive
-            Integer,
-            IntegerRange(-10, 10),
-            Float,
-            FloatRange(-10, 10),
-            Ascii(8, 15),
-            Boolean,
-            // Internet
-            Email,
-            UserName,
-            Password(8, 15),
-            CreditCard,
-            URL,
-            IPv4,
-            IPv6,
-            RGB,
-            RGBA,
-            UserAgent,
-            StatusCode,
-            // Company
-            CompanySuffix,
-            CompanyName,
-            Industry,
-            // Address
-            Building,
-            StreetName,
-            CityName,
-            StateName,
-            CountryCode,
-            CountryName,
-            TimeZone,
-            Address,
-            // use hyphen?
-            ZipCode(true),
-            ZipCode(false),
-            // use hyphen?
-            DomesticPhoneNumber(true),
-            DomesticPhoneNumber(false),
-            Latitude,
-            Longitude,
-            // Date Time
-            // format-str: https://docs.rs/chrono/0.4.9/chrono/format/strftime/index.html#specifiers
-            // String is format. default is "%Y-%m-%d %H:%I:%M"'s sub-format.
-            // But, When Time(Date, DateTime), use only Time(Date, Time/Date)-formatter.
-            // ex. "219-11-02 21:09:31"
-            Time(DEFAULT_TIME_FORMAT.to_string()),
-            // now - 100year ~ now
-            Date(DEFAULT_DATE_FORMAT.to_string()),
-            // now - 100year ~ now
-            DateTime(DEFAULT_DATE_TIME_FORMAT.to_string()),
-            // FileSystem
-            FileName,
-            Extension,
-        ]
     }
 
     fn is_string_type(&self) -> bool {

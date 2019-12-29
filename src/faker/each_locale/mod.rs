@@ -39,6 +39,11 @@ impl Generator {
 trait Rand: Data {
     fn gen<R: Rng>(rng: &mut R, option: &FakeOption) -> String {
         match option {
+            // With
+            FakeOption::Join(sep, data) => {
+                return data.iter().map(|d| Self::gen(rng, d)).collect::<Vec<String>>().join(sep);
+            }
+
             // Fixed Value
             FakeOption::FixedString(s) => {
                 return s.clone();

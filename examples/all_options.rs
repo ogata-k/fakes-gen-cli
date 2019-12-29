@@ -10,6 +10,19 @@ use rand::thread_rng;
 fn main() {
     use FakeOption::*;
     let all_options: Vec<FakeOption> = vec![
+        // With
+        Join("/".to_string(), vec![
+            Box::new(FixedString("".to_string())),
+            Box::new(UserName),
+            Box::new(UserName),
+            Box::new(
+                Join("_".to_string(), vec![
+                    Box::new(UserName),
+                    Box::new(UserName),
+                    Box::new(DateTime("%Y".to_string())),
+                ]),
+            ),
+        ]),
         // Fixed
         FixedString("Dummy String".to_string()),
         FixedNotString("Dummy not String".to_string()),

@@ -1,5 +1,6 @@
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum Category {
+    With,
     Fixed,
     Select,
     Lorem,
@@ -25,6 +26,7 @@ impl std::fmt::Display for Category {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         use Category::*;
         let s: String = match self {
+            With => "With",
             Fixed => "Fixed",
             Select => "Select",
             Lorem => "Lorem",

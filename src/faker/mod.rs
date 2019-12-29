@@ -57,6 +57,7 @@ impl<R: Rng> Faker<R> {
     }
 
     /// one record
+    /// when option is "With.xxx", ignore "name" and so on.
     pub fn gen_record(&mut self, options: &[FakeOption]) -> Vec<String> {
         let mut record: Vec<String> = Vec::new();
         let person_name: Option<PersonName> = self.gen_name_set(options);
