@@ -1,3 +1,10 @@
+# v0.2.2
+* Fix bug: failed parse fake option: With.Join(asd#-#Name.FullName()#Fixed.String(hoge)#4#Fixed.NotString(34)) because of not accept empty value
+* Modify: get empty value from empty list.    
+
+# v0.2.1
+* modify error message
+
 # v0.2.0
 * Move all format action into "file_converter"
 * Remove empty value filtering
