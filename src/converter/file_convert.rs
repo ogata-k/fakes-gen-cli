@@ -1,8 +1,6 @@
 use crate::converter::file_type::FileType;
-use crate::date_time_format::DEFAULT_DATE_TIME_FORMAT;
 use crate::faker::fake_options::FakeOption;
 use crate::faker::Faker;
-use chrono::Local;
 use rand::Rng;
 use std::io;
 
@@ -373,10 +371,9 @@ impl Converter for JsonConverter {
         write!(w, "{}{{", indent)?;
         write!(
             w,
-            "\n{}{}\"{}\": [",
+            "\n{}{}\"dummy\": [",
             self.one_indent,
             indent,
-            Local::now().format(DEFAULT_DATE_TIME_FORMAT)
         )?;
         let indented_converter: JsonConverter = self.add_indent(2);
         if let Some((head, tails)) = data_set.split_first() {
