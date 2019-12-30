@@ -24,6 +24,7 @@ or get from crates.io
 ## support fake option
 ### With other option
     // "sep" is separator for data generated as each "options" 
+    // not support Join option's nest and name's furigana
     Join(sep, options),
 
 ### Fixed user data
