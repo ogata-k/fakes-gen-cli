@@ -41,7 +41,11 @@ trait Rand: Data {
         match option {
             // With
             FakeOption::Join(sep, data) => {
-                return data.iter().map(|d| Self::gen(rng, d)).collect::<Vec<String>>().join(sep);
+                return data
+                    .iter()
+                    .map(|d| Self::gen(rng, d))
+                    .collect::<Vec<String>>()
+                    .join(sep);
             }
 
             // Fixed Value

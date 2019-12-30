@@ -9,6 +9,7 @@ use fakes_gen::date_time_format::{
 use fakes_gen::faker::category::Category;
 use fakes_gen::faker::fake_options::FakeOption;
 use regex::{Captures, Regex};
+use std::process::exit;
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Scanner {
@@ -352,6 +353,8 @@ impl Scanner {
     const NORMAL_OPTION_VAR: &'static str = "<normal_option>";
     const SPECIAL_OPTION_VAR: &'static str = "<special_option>";
     const WITH_JOIN_OPTION_VAR: &'static str = "<with_join_option>";
+    const JOIN_SEPARATOR_VAR: &'static str = "<join_separator>";
+    const REPEATABLE_OPTION_VAR: &'static str = "<repeatable_option>";
     const CATEGORY_VAR: &'static str = "<category>";
     const OPTION_NAME_VAR: &'static str = "<option_name>";
     const COLUMN_NAME_VAR: &'static str = "<column_name>";
@@ -364,21 +367,23 @@ impl Scanner {
     const BOOL_VAR: &'static str = "<bool>";
     const FORMAT_STRING_VAR: &'static str = "<format_string>";
     const OPTION_WITHOUT_COLUMN_NAME_VAR: &'static str = "<option_without_column_name>";
-    const REPEAT_OPTION_VAR: &'static str = "<repeatable_option>";
 
     // value
     const OPTION_FORMAT: &'static str = "<normal_option>|<special_option>";
     const NORMAL_OPTION_FORMAT: &'static str =
         "<category>\\.<option_name>\\(<column_name>(#<sub_option>)?\\)";
     const SPECIAL_OPTION_FORMAT: &'static str = "<with_join_option>";
-    const WITH_JOIN_OPTION_FORMAT: &'static str = "With\\.Join\\(<column_name>(#<repeatable_option>)*\\)";
-    const REPEAT_OPTION_FORMAT: &'static str = "<unsigned_integer>(#<unsigned_integer>)?#<option_without_column_name>";
+    const WITH_JOIN_OPTION_FORMAT: &'static str =
+        "With\\.Join\\(<column_name>#<join_separator>(#<repeatable_option>)*\\)";
+    const JOIN_SEPARATOR_FORMAT: &'static str = "[^#]*";
+    const REPEATABLE_OPTION_FORMAT: &'static str =
+        "<unsigned_integer>?#<option_without_column_name>";
     const OPTION_WITHOUT_COLUMN_NAME_FORMAT: &'static str =
         "<category>\\.<option_name>\\((<sub_option>)?\\)";
     const CATEGORY_FORMAT: &'static str = "[A-Z][0-9a-zA-Z]*";
     const OPTION_NAME_FORMAT: &'static str = "[A-Z][0-9a-zA-Z]*";
     const SUB_OPTION_FORMAT: &'static str =
-        "<string>|<string_list>|<unsigned_min_max>|<signed_min_max>|<boolean>|<format_string>";
+        "<string>|<string_list>|<unsigned_integer_range>|<signed_integer_range>|<boolean>|<format_string>";
     const STRING_FORMAT: &'static str = "((\".*\")|[.[^\\ ]]*)";
     const STRING_LIST_FORMAT: &'static str = "\\[<string>(#<string>)*\\]";
     const UNSIGNED_INTEGER_RANGE_FORMAT: &'static str = "<unsigned_integer>#<unsigned_integer>";
@@ -388,17 +393,23 @@ impl Scanner {
 
     // format pair
     const OPTION: (&'static str, &'static str) = (Scanner::OPTION_VAR, Scanner::OPTION_FORMAT);
-    const NORMAL_OPTION: (&'static str, &'static str) = (Scanner::NORMAL_OPTION_VAR, Scanner::NORMAL_OPTION_FORMAT);
-    const SPECIAL_OPTION: (&'static str, &'static str) = (Scanner::SPECIAL_OPTION_VAR, Scanner::SPECIAL_OPTION_FORMAT);
-    const WITH_JOIN_OPTION: (&'static str, &'static str) = (Scanner::WITH_JOIN_OPTION_VAR, Scanner::WITH_JOIN_OPTION_FORMAT);
-
+    const NORMAL_OPTION: (&'static str, &'static str) =
+        (Scanner::NORMAL_OPTION_VAR, Scanner::NORMAL_OPTION_FORMAT);
+    const SPECIAL_OPTION: (&'static str, &'static str) =
+        (Scanner::SPECIAL_OPTION_VAR, Scanner::SPECIAL_OPTION_FORMAT);
+    const WITH_JOIN_OPTION: (&'static str, &'static str) = (
+        Scanner::WITH_JOIN_OPTION_VAR,
+        Scanner::WITH_JOIN_OPTION_FORMAT,
+    );
+    const JOIN_SEPARATOR: (&'static str, &'static str) =
+        (Scanner::JOIN_SEPARATOR_VAR, Scanner::JOIN_SEPARATOR_FORMAT);
     const REPEAT_OPTION: (&'static str, &'static str) = (
-        Scanner::REPEAT_OPTION_VAR,
-        Scanner::REPEAT_OPTION_FORMAT
+        Scanner::REPEATABLE_OPTION_VAR,
+        Scanner::REPEATABLE_OPTION_FORMAT,
     );
     const OPTION_WITHOUT_COLUMN_NAME: (&'static str, &'static str) = (
         Scanner::OPTION_WITHOUT_COLUMN_NAME_VAR,
-        Scanner::OPTION_WITHOUT_COLUMN_NAME_FORMAT
+        Scanner::OPTION_WITHOUT_COLUMN_NAME_FORMAT,
     );
     const CATEGORY: (&'static str, &'static str) =
         (Scanner::CATEGORY_VAR, Scanner::CATEGORY_FORMAT);
@@ -424,9 +435,8 @@ impl Scanner {
         Scanner::UNSIGNED_INTEGER_FORMAT,
     );
     const BOOL: (&'static str, &'static str) = (Scanner::BOOL_VAR, Scanner::BOOL_FORMAT);
-    const FORMAT_STRING: (&'static str, &'static str) = (
-        Scanner::FORMAT_STRING_VAR, Scanner::STRING_VAR
-    );
+    const FORMAT_STRING: (&'static str, &'static str) =
+        (Scanner::FORMAT_STRING_VAR, Scanner::STRING_VAR);
 
     fn all_format_pair() -> Vec<(&'static str, &'static str)> {
         [
@@ -434,6 +444,7 @@ impl Scanner {
             Self::NORMAL_OPTION,
             Self::SPECIAL_OPTION,
             Self::WITH_JOIN_OPTION,
+            Self::JOIN_SEPARATOR,
             Self::REPEAT_OPTION,
             Self::OPTION_WITHOUT_COLUMN_NAME,
             Self::CATEGORY,
@@ -607,20 +618,70 @@ impl Scanner {
         option_name: &str,
         sub_option_str: Option<&str>,
     ) -> Result<FakeOption, ScannerError> {
-        // TODO parse
-        if option_name == Self::FIXED_STRING {
-            return Ok(FakeOption::FixedString(Self::parse_string(&Self::split(
-                sub_option_str,
-            ))?));
-        }
-        if option_name == Self::FIXED_NOT_STRING {
-            return Ok(FakeOption::FixedNotString(Self::parse_string(
-                &Self::split(sub_option_str),
-            )?));
+        if option_name == Self::JOIN {
+            if sub_option_str.is_none() {
+                return Ok(FakeOption::Join("".to_string(), vec![]));
+            }
+            let split_regex: Regex = Regex::new(
+                r"^(?P<Separator>[^#]*?)(?P<OptionItemsStr>(?:(?:#(?:[0-9]+))?#(?:[A-Z][[:alnum:]]*?)\.(?:[A-Z][[:alnum:]]*?)\((?:.*?)?\))*)$"
+            ).unwrap();
+
+            let split_capture = split_regex.captures(sub_option_str.unwrap());
+            if split_capture.is_none() {
+                return Err(ScannerError::UnknownOptionFormat(self.input.to_string()));
+            }
+            let capture: Captures = split_capture.unwrap();
+            let separator = capture.name("Separator").unwrap().as_str();
+
+            let option_item_split_regex = Regex::new(
+                r"(?P<Item>(?:#(?:[0-9]+))?#(?:[A-Z][[:alnum:]]*?)\.(?:[A-Z][[:alnum:]]*?)\((?:.*?)?\))"
+            ).unwrap();
+            let option_item_regex = Regex::new(
+                r"^(?:(?:#(?P<Count>[0-9]+))?#(?P<Category>[A-Z][[:alnum:]]*?)\.(?P<OptionName>[A-Z][[:alnum:]]*?)\((?P<SubOption>.*?)?\))*$"
+            ).unwrap();
+
+            let mut fake_option_items: Vec<Box<FakeOption>> = Vec::new();
+            let split_items = option_item_split_regex
+                .captures_iter(capture.name("OptionItemsStr").unwrap().as_str())
+                .collect::<Vec<Captures>>();
+            let parsed_split_item: String = split_items
+                .iter()
+                .map(|m| m.get(0).unwrap().as_str())
+                .collect::<Vec<&str>>()
+                .join("");
+            if capture.name("OptionItemsStr").unwrap().as_str() != &parsed_split_item {
+                return Err(ScannerError::UnknownJoinItemFormat(
+                    capture.name("OptionItemsStr").unwrap().as_str().to_string(),
+                ));
+            }
+            for item_str in split_items {
+                let option_item = option_item_regex
+                    .captures(item_str.name("Item").unwrap().as_str())
+                    .unwrap();
+                let count: u8 = if let Some(c) = option_item.name("Count") {
+                    let c_int_op = c.as_str().parse::<u8>();
+                    if c_int_op.is_err() {
+                        eprintln!("fail parse int {}, can parse range: 0 to 255", c.as_str());
+                        exit(1);
+                    }
+                    c_int_op.unwrap()
+                } else {
+                    1
+                };
+                let option = self.get_fake_option(
+                    option_item.name("Category").unwrap().as_str(),
+                    option_item.name("OptionName").unwrap().as_str(),
+                    option_item.name("SubOption").map(|s| s.as_str()),
+                )?;
+                for _ in 0..count {
+                    fake_option_items.push(Box::new(option.clone()));
+                }
+            }
+            return Ok(FakeOption::Join(separator.to_string(), fake_option_items));
         }
         return Err(ScannerError::UnknownOption(
             option_name.to_string(),
-            Category::Fixed,
+            Category::With,
         ));
     }
 
@@ -973,17 +1034,13 @@ impl Scanner {
         ));
     }
 
-    pub fn scan(&self) -> Result<(String, FakeOption), ScannerError> {
-        let regex: Regex = Regex::new(r"^(?P<Category>[A-Z][[:alnum:]]*?)\.(?P<OptionName>[A-Z][[:alnum:]]*?)\((?P<ColumnName>.*?)(?:#(?P<SubOption>.*?))?\)$").unwrap();
-        let capture = regex.captures(&self.input);
-        if capture.is_none() {
-            return Err(ScannerError::UnknownOptionFormat(self.input.to_string()));
-        }
-        let capture: Captures = capture.unwrap();
-        let category = self.parse_category(capture.name("Category").unwrap().as_str())?;
-        let option_name = capture.name("OptionName").unwrap().as_str();
-        let column_name = capture.name("ColumnName").unwrap().as_str();
-        let sub_option_str = capture.name("SubOption").map(|s| s.as_str());
+    fn get_fake_option(
+        &self,
+        category: &str,
+        option_name: &str,
+        sub_option_str: Option<&str>,
+    ) -> Result<FakeOption, ScannerError> {
+        let category = self.parse_category(category)?;
         let option: FakeOption = match category {
             Category::With => self.parse_with(option_name, sub_option_str)?,
             Category::Fixed => self.parse_fixed(option_name, sub_option_str)?,
@@ -997,6 +1054,23 @@ impl Scanner {
             Category::DateTime => self.parse_datetime(option_name, sub_option_str)?,
             Category::FileSystem => self.parse_filesystem(option_name, sub_option_str)?,
         };
+
+        return Ok(option);
+    }
+
+    pub fn scan(&self) -> Result<(String, FakeOption), ScannerError> {
+        let regex: Regex = Regex::new(r"^(?P<Category>[A-Z][[:alnum:]]*?)\.(?P<OptionName>[A-Z][[:alnum:]]*?)\((?P<ColumnName>.*?)(?:#(?P<SubOption>.*?))?\)$").unwrap();
+        let capture = regex.captures(&self.input);
+        if capture.is_none() {
+            return Err(ScannerError::UnknownOptionFormat(self.input.to_string()));
+        }
+        let capture: Captures = capture.unwrap();
+        let column_name = capture.name("ColumnName").unwrap().as_str();
+        let option = self.get_fake_option(
+            capture.name("Category").unwrap().as_str(),
+            capture.name("OptionName").unwrap().as_str(),
+            capture.name("SubOption").map(|s| s.as_str()),
+        )?;
 
         return Ok((column_name.to_string(), option));
     }
@@ -1013,6 +1087,7 @@ pub enum ScannerError {
     UnknownStringListFormat(Vec<String>),
     UnknownIntegerListFormat(Vec<String>),
     RangeErr(String, String),
+    UnknownJoinItemFormat(String),
 }
 
 impl ScannerError {
@@ -1061,7 +1136,12 @@ impl Display for ScannerError {
             }
             UnknownOption(s, c) => {
                 writeln!(f, "Unknown Option is \"{}\"", s);
-                writeln!(f, "Usable Option's format is ({})|({})", Scanner::NORMAL_OPTION_FORMAT, Scanner::WITH_JOIN_OPTION_FORMAT);
+                writeln!(
+                    f,
+                    "Usable Option's format is ({}) | ({})",
+                    Scanner::NORMAL_OPTION_FORMAT,
+                    Scanner::WITH_JOIN_OPTION_FORMAT
+                );
                 write!(
                     f,
                     "And usable Option is {}",
@@ -1108,6 +1188,19 @@ impl Display for ScannerError {
             }
             RangeErr(from, to) => {
                 write!(f, "Range Err: {} is not larger than {}", from, to);
+                Ok(())
+            }
+            UnknownJoinItemFormat(s) => {
+                write!(f, "Unknown join item option format \"{}\"", s);
+                Self::write_messages(
+                    f,
+                    "Usable repeatable option format for join item option",
+                    &[
+                        Scanner::WITH_JOIN_OPTION,
+                        Scanner::JOIN_SEPARATOR,
+                        Scanner::REPEAT_OPTION,
+                    ],
+                );
                 Ok(())
             }
         }

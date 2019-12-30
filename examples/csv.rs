@@ -12,27 +12,36 @@ use std::io::Write;
 fn main() -> io::Result<()> {
     let mut faker: Faker<ThreadRng> = Faker::default();
     let header_options: Vec<(String, FakeOption)> = vec![
-        ("file_path".to_string(),
-         FakeOption::Join(".".to_string(), vec![
-            Box::new(FakeOption::Join("/".to_string(), vec![
-                Box::new(FakeOption::FixedString("".to_string())),
-                Box::new(FakeOption::UserName),
-                Box::new(FakeOption::UserName),
-                Box::new(
-                    FakeOption::Join("_".to_string(), vec![
-                        Box::new(FakeOption::UserName),
-                        Box::new(FakeOption::UserName),
-                        Box::new(FakeOption::DateTime("%Y".to_string())),
-                    ]),
-                ),
-            ])),
-             Box::new(FakeOption::SelectString(vec![
-                "txt".to_string(),
-                 "csv".to_string(),
-                 "tsv".to_string(),
-                 "json".to_string(),
-             ])),
-         ])),
+        (
+            "file_path".to_string(),
+            FakeOption::Join(
+                ".".to_string(),
+                vec![
+                    Box::new(FakeOption::Join(
+                        "/".to_string(),
+                        vec![
+                            Box::new(FakeOption::FixedString("".to_string())),
+                            Box::new(FakeOption::UserName),
+                            Box::new(FakeOption::UserName),
+                            Box::new(FakeOption::Join(
+                                "_".to_string(),
+                                vec![
+                                    Box::new(FakeOption::UserName),
+                                    Box::new(FakeOption::UserName),
+                                    Box::new(FakeOption::DateTime("%Y".to_string())),
+                                ],
+                            )),
+                        ],
+                    )),
+                    Box::new(FakeOption::SelectString(vec![
+                        "txt".to_string(),
+                        "csv".to_string(),
+                        "tsv".to_string(),
+                        "json".to_string(),
+                    ])),
+                ],
+            ),
+        ),
         (
             "first_name_with_furigana".to_string(),
             FakeOption::FirstName(true),

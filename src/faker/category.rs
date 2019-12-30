@@ -17,7 +17,8 @@ impl Category {
     pub fn all_list() -> Vec<Self> {
         use Category::*;
         vec![
-            With, Fixed, Select, Lorem, Name, Primitive, Internet, Company, Address, DateTime, FileSystem,
+            With, Fixed, Select, Lorem, Name, Primitive, Internet, Company, Address, DateTime,
+            FileSystem,
         ]
     }
 }

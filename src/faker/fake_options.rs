@@ -1,4 +1,3 @@
-use crate::date_time_format::{DEFAULT_DATE_FORMAT, DEFAULT_DATE_TIME_FORMAT, DEFAULT_TIME_FORMAT};
 use crate::faker::category::Category;
 use crate::helper::{not_string_formatted, string_formatted};
 
@@ -95,8 +94,15 @@ impl std::fmt::Display for FakeOption {
         use FakeOption::*;
         let cat: Category = self.category();
         let s: String = match self {
-            Join(separator , data) =>
-                format!("{}.Join(separator: \"{}\", data: \"{}\")", cat, separator, data.iter().map(|d| d.to_string()).collect::<Vec<String>>().join(", ")),
+            Join(separator, data) => format!(
+                "{}.Join(separator: \"{}\", data: \"{}\")",
+                cat,
+                separator,
+                data.iter()
+                    .map(|d| d.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            ),
             FixedString(s) => format!("{}.String(target: \"{}\")", cat, s),
             FixedNotString(s) => format!("{}.NotString(target: \"{}\")", cat, s),
             SelectString(list) => format!("{}.SelectString(list: {:?})", cat, list),
