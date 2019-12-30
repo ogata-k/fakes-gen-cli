@@ -152,7 +152,7 @@ Category:
 Options:
 ・With\.Join\(<column_name>#<join_separator>(#<repeatable_option>)*\)
 Example:
-fakes-gen With.Join(hoge#_dd_#Select.String(hoge#sss)#2#Select.NotString(1#2#3))  // "sss_dd_1_dd_2"
+fakes-gen With.Join(_#_dd_#Select.String(hoge#sss)#2#Select.NotString(1#2#3))  // "sss_dd_1_dd_2"
 
 Category:
  Fixed  // fixed value of user-value. 
