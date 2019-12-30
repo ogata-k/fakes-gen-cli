@@ -293,4 +293,5 @@ If you want to know <format_string>, please reference to https://docs.rs/chrono/
 * ~~FakeOption's item is to convert to form Category(EachOption)~~
 * ~~can use as cli tool~~
 * add Primitive.Utf8 to FakeOption
+* can specify character-code when generate
 * ~~move helper's \[not_\]string_formatted to each Converter~~
