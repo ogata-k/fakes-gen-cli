@@ -150,8 +150,9 @@ Usable format is form such as ```Xxxx.Yyyy(zzz)``` or ```Xxxx.Yyyy(zzz#sub)```.
 Category:
  With
 Options:
-// With.Join(h)oge#_dd_#Select.String(hoge#sss)#2#Select.NotString(1#2#3)) -> "sss_dd_1_dd_2"
 ・With\.Join\(<column_name>#<join_separator>(#<repeatable_option>)*\)
+Example:
+fakes-gen With.Join(hoge#_dd_#Select.String(hoge#sss)#2#Select.NotString(1#2#3))  // "sss_dd_1_dd_2"
 
 Category:
  Fixed  // fixed value of user-value. 
