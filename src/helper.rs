@@ -22,7 +22,9 @@ pub fn split(text: &str) -> (String, String) {
 }
 
 pub fn select<'a, R: Rng, I: ?Sized>(rng: &'a mut R, data: &'a [&I]) -> &'a I {
-    return data.choose(rng).unwrap();
+    return data
+        .choose(rng)
+        .expect("failed select data from empty list.");
 }
 
 /// minimum <= n <= maximum

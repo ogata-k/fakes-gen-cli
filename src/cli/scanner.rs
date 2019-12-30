@@ -533,10 +533,14 @@ impl Scanner {
     }
 
     fn parse_string(subs: &[String]) -> Result<String, ScannerError> {
-        if subs.len() != 1 {
-            return Err(ScannerError::UnknownStringFormat(subs.to_vec()));
+        if subs.is_empty() {
+            return Ok(String::default());
         } else {
-            return Ok(subs[0].to_string());
+            if subs.len() != 1 {
+                return Err(ScannerError::UnknownStringFormat(subs.to_vec()));
+            } else {
+                return Ok(subs[0].to_string());
+            }
         }
     }
 
@@ -637,7 +641,7 @@ impl Scanner {
                 r"(?P<Item>(?:#(?:[0-9]+))?#(?:[A-Z][[:alnum:]]*?)\.(?:[A-Z][[:alnum:]]*?)\((?:.*?)?\))"
             ).unwrap();
             let option_item_regex = Regex::new(
-                r"^(?:(?:#(?P<Count>[0-9]+))?#(?P<Category>[A-Z][[:alnum:]]*?)\.(?P<OptionName>[A-Z][[:alnum:]]*?)\((?P<SubOption>.*?)?\))*$"
+                r"^(?:(?:#(?P<Count>[0-9]+))?#(?P<Category>[A-Z][[:alnum:]]*?)\.(?P<OptionName>[A-Z][[:alnum:]]*?)\((?P<SubOption>.+?)?\))*$"
             ).unwrap();
 
             let mut fake_option_items: Vec<Box<FakeOption>> = Vec::new();

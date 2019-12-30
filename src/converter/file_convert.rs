@@ -369,12 +369,7 @@ impl Converter for JsonConverter {
         let indent: String = self.get_indent();
 
         write!(w, "{}{{", indent)?;
-        write!(
-            w,
-            "\n{}{}\"dummy\": [",
-            self.one_indent,
-            indent,
-        )?;
+        write!(w, "\n{}{}\"dummy\": [", self.one_indent, indent,)?;
         let indented_converter: JsonConverter = self.add_indent(2);
         if let Some((head, tails)) = data_set.split_first() {
             write!(w, "\n")?;
