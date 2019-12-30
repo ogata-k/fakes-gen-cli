@@ -22,6 +22,10 @@ or get from crates.io
 
 # As Library
 ## support fake option
+### With other option
+    // "sep" is separator for data generated as each "options" 
+    Join(sep, options),
+
 ### Fixed user data
     // s is user data quated by ".
     FixedString(s)
@@ -138,11 +142,17 @@ or get from crates.io
 
 ## usable format of \[option\]
 Usable format is form such as ```Xxxx.Yyyy(zzz)``` or ```Xxxx.Yyyy(zzz#sub)```.
-```Xxxx``` is Category. Usable Category is "Fixed", "Select", "Lorem", "Name", "Primitive", "Internet", "Company", "Address", "DateTime" and "FileSystem".
+```Xxxx``` is Category. Usable Category is "With", " "Fixed", "Select", "Lorem", "Name", "Primitive", "Internet", "Company", "Address", "DateTime" and "FileSystem".
 ```Yyyy``` is Option for each Category. Usable Option is theirs and ```zzz``` is ```<column_name>```.
  If you use header or fullform, fakes-gen use ```<column_name>```.
 ```
 // modified usable message from fakes-gen -u
+Category:
+ With
+Options:
+// With.Join(h)oge#_dd_#Select.String(hoge#sss)#2#Select.NotString(1#2#3)) -> "sss_dd_1_dd_2"
+・With\.Join\(<column_name>#<join_separator>(#<repeatable_option>)*\)
+
 Category:
  Fixed  // fixed value of user-value. 
 Options:
@@ -257,11 +267,17 @@ fakes-gen FileSystem.FileName(_)  // "8yIY6C4Pl.csv"
 
 And their option's format is theirs. \[option\] is \<option\>.
 ```
-<option> := <category>\.<option_name>\(<column_name>(#<sub_option>)?\)
+<option> := <normal_option>|<special_option>
+<normal_option> := <category>\.<option_name>\(<column_name>(#<sub_option>)?\)
+<special_option> := <with_join_option>
+<with_join_option> := With\.Join\(<column_name>#<join_separator>(#<repeatable_option>)*\)
+<join_separator> := [^#]*
+<repeatable_option> := <unsigned_integer>?#<option_without_column_name>
+<option_without_column_name> := <category>\.<option_name>\((<sub_option>)?\)
 <category> := [A-Z][0-9a-zA-Z]*
 <option_name> := [A-Z][0-9a-zA-Z]*
 <column_name> := <string>
-<sub_option> := <string>|<string_list>|<unsigned_min_max>|<signed_min_max>|<boolean>|<format_string>
+<sub_option> := <string>|<string_list>|<unsigned_integer_range>|<signed_integer_range>|<boolean>|<format_string>
 <string> := ((".*")|[.[^\ ]]*)
 <string_list> := \[<string>(#<string>)*\]
 <unsigned_integer_range> := <unsigned_integer>#<unsigned_integer>
