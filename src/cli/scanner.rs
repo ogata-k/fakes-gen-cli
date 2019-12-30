@@ -1191,7 +1191,7 @@ impl Display for ScannerError {
                 Ok(())
             }
             UnknownJoinItemFormat(s) => {
-                write!(f, "Unknown join item option format \"{}\"", s);
+                writeln!(f, "Unknown join item option format \"{}\"", s);
                 Self::write_messages(
                     f,
                     "Usable repeatable option format for join item option",
