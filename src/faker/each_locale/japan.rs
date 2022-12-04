@@ -1423,8 +1423,8 @@ impl Data for JapanData {
     }
 
     fn gen_zip_code<R: Rng>(rng: &mut R, hyphen: bool) -> String {
-        let a: u16 = gen_range(rng, 0, 999);
-        let b: u16 = gen_range(rng, 0, 9999);
+        let a: u16 = gen_range(rng, 0..=999);
+        let b: u16 = gen_range(rng, 0..=9999);
         return if hyphen {
             format!("{:>03}-{:>04}", a, b)
         } else {
@@ -1433,9 +1433,9 @@ impl Data for JapanData {
     }
 
     fn gen_domestic_phone_number<R: Rng>(rng: &mut R, hyphen: bool) -> String {
-        let a: u8 = gen_range(rng, 0, 9);
-        let b: u16 = gen_range(rng, 0, 999);
-        let c: u16 = gen_range(rng, 0, 9999);
+        let a: u8 = gen_range(rng, 0..=9);
+        let b: u16 = gen_range(rng, 0..=999);
+        let c: u16 = gen_range(rng, 0..=9999);
         return if hyphen {
             format!("{:>02}-{:>03}-{:>04}", a, b, c)
         } else {
