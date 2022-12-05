@@ -16,6 +16,6 @@ categories = ["command-line-interface",   "command-line-utilities",   "developme
 clap = "2.33.0"
 rand = "0.8"
 regex = "1.5.5"
-chrono = "0.4.9"
+chrono = "0.4.23"
 num-traits = "0.2"
 failure = "0.1.6"

@@ -275,11 +275,11 @@ trait Rand: Data {
                 let hour: u32 = gen_range(rng, 0..=23);
                 let minute: u32 = gen_range(rng, 0..=59);
                 let second: u32 = gen_range(rng, 0..=59);
-                let time: NaiveTime = NaiveTime::from_hms(hour, minute, second);
+                let time: NaiveTime = NaiveTime::from_hms_opt(hour, minute, second).unwrap();
                 return time.format(&format).to_string();
             }
             FakeOption::Date(format) => {
-                let now_year: i32 = Local::today().year();
+                let now_year: i32 = Local::now().year();
                 let year: i32 = gen_range(rng, now_year - 100..=now_year);
                 let month: u32 = gen_range(rng, 1..=12);
                 let day: u32 = gen_range(rng, 1..=31);
@@ -290,7 +290,7 @@ trait Rand: Data {
                 return date.unwrap().format(&format).to_string();
             }
             FakeOption::DateTime(format) => {
-                let now_year: i32 = Local::today().year();
+                let now_year: i32 = Local::now().year();
                 let year: i32 = gen_range(rng, now_year - 100..=now_year);
                 let month: u32 = gen_range(rng, 1..=12);
                 let day: u32 = gen_range(rng, 1..=31);
@@ -301,7 +301,7 @@ trait Rand: Data {
                 let hour: u32 = gen_range(rng, 0..=23);
                 let minute: u32 = gen_range(rng, 0..=59);
                 let second: u32 = gen_range(rng, 0..=59);
-                let time: NaiveTime = NaiveTime::from_hms(hour, minute, second);
+                let time: NaiveTime = NaiveTime::from_hms_opt(hour, minute, second).unwrap();
                 let date_time: NaiveDateTime = NaiveDateTime::new(date.unwrap(), time);
                 return date_time.format(&format).to_string();
             }
