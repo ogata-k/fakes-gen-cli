@@ -1,3 +1,11 @@
+# v0.2.6
+* update rand crate for security
+* update chrono crate
+* cleanup code
+
+# v0.2.4
+* update regex crate for security
+
 # v0.2.2
 * Fix bug: failed parse fake option: With.Join(asd#-#Name.FullName()#Fixed.String(hoge)#4#Fixed.NotString(34)) because of not accept empty value
 * Modify: get empty value from empty list.    
