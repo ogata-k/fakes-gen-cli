@@ -1088,6 +1088,7 @@ pub enum ScannerError {
     UnknownCharacters(Vec<String>),
     UnknownStringFormat(Vec<String>),
     UnknownBooleanFormat(Vec<String>),
+    #[allow(dead_code)]
     UnknownStringListFormat(Vec<String>),
     UnknownIntegerListFormat(Vec<String>),
     RangeErr(String, String),
@@ -1095,23 +1096,29 @@ pub enum ScannerError {
 }
 
 impl ScannerError {
-    fn write_messages(f: &mut Formatter<'_>, title: &str, options: &[(&str, &str)]) {
-        write!(f, "{}:", title);
+    fn write_messages(
+        f: &mut Formatter<'_>,
+        title: &str,
+        options: &[(&str, &str)],
+    ) -> Result<(), Error> {
+        write!(f, "{}:", title)?;
         for option in options {
-            write!(f, "\n\t{} := {}", option.0, option.1);
+            write!(f, "\n\t{} := {}", option.0, option.1)?;
         }
+
+        Ok(())
     }
 
-    fn write_unknown_format(f: &mut Formatter<'_>, target: &str) {
-        writeln!(f, "Unknown format is \"{}\"", target);
+    fn write_unknown_format(f: &mut Formatter<'_>, target: &str) -> Result<(), Error> {
+        writeln!(f, "Unknown format is \"{}\"", target)
     }
 
-    fn write_unknown_format_of_vec(f: &mut Formatter<'_>, subs: &[String]) {
-        writeln!(f, "Unknown format is {}", vec_to_str(subs));
+    fn write_unknown_format_of_vec(f: &mut Formatter<'_>, subs: &[String]) -> Result<(), Error> {
+        writeln!(f, "Unknown format is {}", vec_to_str(subs))
     }
 
-    pub fn write_option_format(f: &mut Formatter<'_>) {
-        Self::write_messages(f, "Usable Option format", &Scanner::all_format_pair());
+    pub fn write_option_format(f: &mut Formatter<'_>) -> Result<(), Error> {
+        Self::write_messages(f, "Usable Option format", &Scanner::all_format_pair())
     }
 }
 
@@ -1120,7 +1127,7 @@ impl Display for ScannerError {
         use ScannerError::*;
         match self {
             UnknownCategory(s) => {
-                writeln!(f, "Unknown Category is {}", s);
+                writeln!(f, "Unknown Category is {}", s)?;
                 write!(
                     f,
                     "Usable Category is {}",
@@ -1130,55 +1137,55 @@ impl Display for ScannerError {
                             .map(|c| c.to_string())
                             .collect::<Vec<String>>()
                     )
-                );
+                )?;
                 Ok(())
             }
             UnknownOptionFormat(s) => {
-                Self::write_unknown_format(f, s);
-                Self::write_option_format(f);
+                Self::write_unknown_format(f, s)?;
+                Self::write_option_format(f)?;
                 Ok(())
             }
             UnknownOption(s, c) => {
-                writeln!(f, "Unknown Option is \"{}\"", s);
+                writeln!(f, "Unknown Option is \"{}\"", s)?;
                 writeln!(
                     f,
                     "Usable Option's format is ({}) | ({})",
                     Scanner::NORMAL_OPTION_FORMAT,
                     Scanner::WITH_JOIN_OPTION_FORMAT
-                );
+                )?;
                 write!(
                     f,
                     "And usable Option is {}",
                     vec_to_str(&Scanner::readable_options(*c))
-                );
+                )?;
                 Ok(())
             }
             UnknownCharacters(s_list) => {
                 // because of s_list is characters of splitting # before.
-                write!(f, "Unknown characters \"{}\"", s_list.join("#"));
+                write!(f, "Unknown characters \"{}\"", s_list.join("#"))?;
                 Ok(())
             }
             UnknownStringFormat(s_list) => {
-                Self::write_unknown_format_of_vec(f, s_list);
-                Self::write_messages(f, "Usable String format", &[Scanner::STRING]);
+                Self::write_unknown_format_of_vec(f, s_list)?;
+                Self::write_messages(f, "Usable String format", &[Scanner::STRING])?;
                 Ok(())
             }
             UnknownBooleanFormat(s_list) => {
-                Self::write_unknown_format_of_vec(f, s_list);
-                Self::write_messages(f, "Usable Boolean format", &[Scanner::BOOL]);
+                Self::write_unknown_format_of_vec(f, s_list)?;
+                Self::write_messages(f, "Usable Boolean format", &[Scanner::BOOL])?;
                 Ok(())
             }
             UnknownStringListFormat(s_list) => {
-                Self::write_unknown_format_of_vec(f, s_list);
+                Self::write_unknown_format_of_vec(f, s_list)?;
                 Self::write_messages(
                     f,
                     "Usable String list format",
                     &[Scanner::STRING_LIST, Scanner::STRING],
-                );
+                )?;
                 Ok(())
             }
             UnknownIntegerListFormat(s_list) => {
-                Self::write_unknown_format_of_vec(f, s_list);
+                Self::write_unknown_format_of_vec(f, s_list)?;
                 Self::write_messages(
                     f,
                     "Usable Integer list format",
@@ -1187,15 +1194,15 @@ impl Display for ScannerError {
                         Scanner::SIGNED_MIN_MAX,
                         Scanner::UNSIGNED_INT,
                     ],
-                );
+                )?;
                 Ok(())
             }
             RangeErr(from, to) => {
-                write!(f, "Range Err: {} is not larger than {}", from, to);
+                write!(f, "Range Err: {} is not larger than {}", from, to)?;
                 Ok(())
             }
             UnknownJoinItemFormat(s) => {
-                writeln!(f, "Unknown join item option format \"{}\"", s);
+                writeln!(f, "Unknown join item option format \"{}\"", s)?;
                 Self::write_messages(
                     f,
                     "Usable repeatable option format for join item option",
@@ -1204,7 +1211,7 @@ impl Display for ScannerError {
                         Scanner::JOIN_SEPARATOR,
                         Scanner::REPEAT_OPTION,
                     ],
-                );
+                )?;
                 Ok(())
             }
         }

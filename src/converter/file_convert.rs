@@ -318,6 +318,7 @@ impl Converter for JsonConverter {
         unreachable!()
     }
 
+    #[allow(unused_variables)]
     fn to_header<W: io::Write>(&self, w: &mut W) -> io::Result<()> {
         unreachable!()
     }

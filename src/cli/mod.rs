@@ -95,7 +95,7 @@ impl<'a, 'b> FakerApp<'a, 'b> {
             return Ok(());
         }
         if !m.is_present("option") {
-            app.print_help();
+            app.print_help().unwrap();
             return Ok(());
         }
 
@@ -144,7 +144,7 @@ impl<'a, 'b> FakerApp<'a, 'b> {
         }
 
         let mut faker = Faker::new(thread_rng(), locale);
-        let mut writer = std::io::stdout();
+        let mut writer = io::stdout();
         if size == 1 {
             if m.is_present("fullform") {
                 to_record_with_header(&mut writer, &mut faker, converter, &header_options)

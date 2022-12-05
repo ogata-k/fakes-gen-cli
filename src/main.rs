@@ -3,6 +3,6 @@ use crate::cli::FakerApp;
 mod cli;
 
 // as cli
-fn main() {
-    FakerApp::new().run();
+fn main() -> std::io::Result<()> {
+    FakerApp::new().run()
 }

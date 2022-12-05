@@ -1,4 +1,4 @@
-use rand::distributions::uniform::{SampleUniform, SampleRange};
+use rand::distributions::uniform::{SampleRange, SampleUniform};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::fmt::Display;
