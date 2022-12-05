@@ -150,7 +150,7 @@ trait Rand: Data {
                 return format!("{}", rng.gen::<i16>());
             }
             FakeOption::IntegerRange(minimum, maximum) => {
-                return format!("{}", gen_range(rng, *minimum, *maximum));
+                return format!("{}", gen_range(rng, *minimum..=*maximum));
             }
             FakeOption::Float => {
                 let i: i16 = rng.gen::<i16>();
@@ -272,35 +272,35 @@ trait Rand: Data {
 
             // DateTime
             FakeOption::Time(format) => {
-                let hour: u32 = gen_range(rng, 0, 23);
-                let minute: u32 = gen_range(rng, 0, 59);
-                let second: u32 = gen_range(rng, 0, 59);
+                let hour: u32 = gen_range(rng, 0..=23);
+                let minute: u32 = gen_range(rng, 0..=59);
+                let second: u32 = gen_range(rng, 0..=59);
                 let time: NaiveTime = NaiveTime::from_hms(hour, minute, second);
                 return time.format(&format).to_string();
             }
             FakeOption::Date(format) => {
                 let now_year: i32 = Local::today().year();
-                let year: i32 = gen_range(rng, now_year - 100, now_year);
-                let month: u32 = gen_range(rng, 1, 12);
-                let day: u32 = gen_range(rng, 1, 31);
+                let year: i32 = gen_range(rng, now_year - 100..=now_year);
+                let month: u32 = gen_range(rng, 1..=12);
+                let day: u32 = gen_range(rng, 1..=31);
                 let mut date: Option<NaiveDate> = NaiveDate::from_ymd_opt(year, month, day);
                 while date.is_none() {
-                    date = NaiveDate::from_ymd_opt(year, month, gen_range(rng, 1, 31));
+                    date = NaiveDate::from_ymd_opt(year, month, gen_range(rng, 1..=31));
                 }
                 return date.unwrap().format(&format).to_string();
             }
             FakeOption::DateTime(format) => {
                 let now_year: i32 = Local::today().year();
-                let year: i32 = gen_range(rng, now_year - 100, now_year);
-                let month: u32 = gen_range(rng, 1, 12);
-                let day: u32 = gen_range(rng, 1, 31);
+                let year: i32 = gen_range(rng, now_year - 100..=now_year);
+                let month: u32 = gen_range(rng, 1..=12);
+                let day: u32 = gen_range(rng, 1..=31);
                 let mut date: Option<NaiveDate> = NaiveDate::from_ymd_opt(year, month, day);
                 while date.is_none() {
-                    date = NaiveDate::from_ymd_opt(year, month, gen_range(rng, 1, 31));
+                    date = NaiveDate::from_ymd_opt(year, month, gen_range(rng, 1..=31));
                 }
-                let hour: u32 = gen_range(rng, 0, 23);
-                let minute: u32 = gen_range(rng, 0, 59);
-                let second: u32 = gen_range(rng, 0, 59);
+                let hour: u32 = gen_range(rng, 0..=23);
+                let minute: u32 = gen_range(rng, 0..=59);
+                let second: u32 = gen_range(rng, 0..=59);
                 let time: NaiveTime = NaiveTime::from_hms(hour, minute, second);
                 let date_time: NaiveDateTime = NaiveDateTime::new(date.unwrap(), time);
                 return date_time.format(&format).to_string();

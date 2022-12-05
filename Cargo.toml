@@ -14,7 +14,7 @@ categories = ["command-line-interface",   "command-line-utilities",   "developme
 
 [dependencies]
 clap = "2.33.0"
-rand = "0.7.2"
+rand = "0.8"
 regex = "1.5.5"
 chrono = "0.4.9"
 num-traits = "0.2"
