@@ -4,6 +4,8 @@ So, if you want to support other locale, please pull request data of the locale.
 You can generate formatted dummy data as xxxx. 
 When it is String, formatter is "xxxx". When it is not String, formatter is xxxx.
 
+**This project is not active. Please use https://github.com/ogata-k/sbrd-gen**
+
 ## License
 MIT
 
